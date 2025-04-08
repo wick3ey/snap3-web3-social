@@ -30,7 +30,6 @@ const FriendProfileStats: React.FC<FriendProfileStatsProps> = ({
           className="text-center"
         >
           <div className="text-lg font-bold flex items-center justify-center">
-            {stat.icon && stat.icon}
             <span>{stat.value}</span>
           </div>
           <div className="text-xs text-gray-400">{stat.title}</div>
