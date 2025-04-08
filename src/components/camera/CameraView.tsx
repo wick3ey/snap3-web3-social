@@ -2,8 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Camera, CameraIcon, Sparkles, Timer, X, Send, 
-  Download, User, Sticker, Text, FileImage, PencilLine,
-  Image, Video, FlipHorizontal, Zap
+  Download, User, Sticker, Text, PencilLine,
+  Image, Video, FlipHorizontal, Zap, FileImage
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -89,10 +89,9 @@ const CameraView: React.FC<CameraViewProps> = ({
       } else {
         // Show send options
         toast({
-          title: "Send options",
           description: "Choose who to send this to",
           action: {
-            label: "Select Friends",
+            label: "Send",
             onClick: () => toast.info("Opening contacts selector"),
           },
         });

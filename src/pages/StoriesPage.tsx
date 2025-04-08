@@ -9,14 +9,32 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
+// Define story types with proper type constraints
+interface StoryItem {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  duration: number;
+  caption?: string;
+}
+
+interface Story {
+  id: string;
+  name: string;
+  avatar: string;
+  hasUnviewed: boolean;
+  isOfficial: boolean;
+  hasNFT: boolean;
+  items: StoryItem[];
+}
+
 const StoriesPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
-  const [filteredStories, setFilteredStories] = useState<typeof stories>(stories);
-
+  
   // Dummy data for stories
-  const stories = [
+  const stories: Story[] = [
     {
       id: '1',
       name: 'Your Story',
@@ -87,6 +105,8 @@ const StoriesPage = () => {
       ]
     },
   ];
+  
+  const [filteredStories, setFilteredStories] = useState<Story[]>(stories);
 
   // Dummy data for discover section
   const discoverContent = [

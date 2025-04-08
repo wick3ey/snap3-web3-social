@@ -26,7 +26,6 @@ const CameraPage = () => {
     } else {
       // Regular camera mode
       toast({
-        title: "Image captured",
         description: "Choose who to send this to",
         action: {
           label: "Send",

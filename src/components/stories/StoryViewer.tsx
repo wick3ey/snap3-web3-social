@@ -136,7 +136,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
 
   const handleMore = () => {
     toast({
-      title: "Story options",
       description: "Report, download or save story",
     });
   };
@@ -155,7 +154,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
   const handleFirstStoryYourStory = () => {
     if (currentStoryIndex === 0 && story.name === 'Your Story') {
       toast({
-        title: "Create a story",
         description: "You can create a new story here",
         action: {
           label: "Create",

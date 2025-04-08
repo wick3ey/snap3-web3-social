@@ -1,420 +1,462 @@
 
-import React, { useState, useEffect } from 'react';
-import { Search, MapPin, User, Users, Zap, Info, Plus, Minus, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Search, ChevronDown, User, Settings, Layers, ZoomIn, ZoomOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 
-interface NearbyUser {
-  id: string;
-  name: string;
-  avatar: string;
-  distance: string;
-  isOnline: boolean;
-  hasStory: boolean;
-  hasNFT: boolean;
-  location: { x: number; y: number };
-}
+// Dummy user location data
+const nearbyUsers = [
+  { id: '1', name: 'Alex', avatar: '/placeholder.svg', distance: '0.5 miles', isOnline: true },
+  { id: '2', name: 'Sarah', avatar: '/placeholder.svg', distance: '1.2 miles', isOnline: true },
+  { id: '3', name: 'Mike', avatar: '/placeholder.svg', distance: '2.7 miles', isOnline: false },
+  { id: '4', name: 'Taylor', avatar: '/placeholder.svg', distance: '3.1 miles', isOnline: true },
+];
 
-interface Event {
-  id: string;
-  title: string;
-  image: string;
-  location: string;
-  date: string;
-  attendees: number;
-  verified: boolean;
-  coordinates: { x: number; y: number };
-}
+// Dummy trending locations
+const trendingLocations = [
+  { id: '1', name: 'Web3 Conference', address: 'Convention Center', attendees: 230 },
+  { id: '2', name: 'NFT Gallery', address: 'Downtown Art District', attendees: 158 },
+  { id: '3', name: 'Solana Hackathon', address: 'TechHub Building', attendees: 75 },
+];
 
-const MapPage = () => {
-  const navigate = useNavigate();
+const MapPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [mapMode, setMapMode] = useState<'users' | 'events'>('users');
-  const [selectedPin, setSelectedPin] = useState<string | null>(null);
-  const [mapZoom, setMapZoom] = useState(1);
-  const [userLocation, setUserLocation] = useState({ x: 50, y: 50 });
-  
-  // Dummy users nearby
-  const nearbyUsers: NearbyUser[] = [
-    {
-      id: '1',
-      name: 'Alex',
-      avatar: '/placeholder.svg',
-      distance: '0.5 mi',
-      isOnline: true,
-      hasStory: true,
-      hasNFT: true,
-      location: { x: 30, y: 40 }
-    },
-    {
-      id: '2',
-      name: 'Sarah',
-      avatar: '/placeholder.svg',
-      distance: '1.2 mi',
-      isOnline: true,
-      hasStory: true,
-      hasNFT: false,
-      location: { x: 60, y: 30 }
-    },
-    {
-      id: '3',
-      name: 'Michael',
-      avatar: '/placeholder.svg',
-      distance: '2.5 mi',
-      isOnline: false,
-      hasStory: false,
-      hasNFT: false,
-      location: { x: 70, y: 70 }
-    },
-    {
-      id: '4',
-      name: 'Jessica',
-      avatar: '/placeholder.svg',
-      distance: '3.1 mi',
-      isOnline: true,
-      hasStory: false,
-      hasNFT: true,
-      location: { x: 20, y: 65 }
-    },
-  ];
-  
-  // Dummy events
-  const events: Event[] = [
-    {
-      id: 'e1',
-      title: 'Solana Hackathon',
-      image: '/placeholder.svg',
-      location: 'Tech Hub Downtown',
-      date: 'Tomorrow, 9 AM',
-      attendees: 120,
-      verified: true,
-      coordinates: { x: 35, y: 45 }
-    },
-    {
-      id: 'e2',
-      title: 'NFT Art Exhibition',
-      image: '/placeholder.svg',
-      location: 'Digital Gallery',
-      date: 'Today, 7 PM',
-      attendees: 75,
-      verified: true,
-      coordinates: { x: 65, y: 25 }
-    },
-    {
-      id: 'e3',
-      title: 'Web3 Meetup',
-      image: '/placeholder.svg',
-      location: 'Crypto Café',
-      date: 'Friday, 6 PM',
-      attendees: 35,
-      verified: false,
-      coordinates: { x: 75, y: 60 }
-    },
-  ];
+  const [showNearby, setShowNearby] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLayerOptions, setShowLayerOptions] = useState(false);
+  const [mapType, setMapType] = useState<'standard' | 'satellite' | 'hybrid'>('standard');
+  const [zoomLevel, setZoomLevel] = useState(5);
+  const [showMyLocation, setShowMyLocation] = useState(true);
+  const [showFriends, setShowFriends] = useState(true);
+  const [showTrending, setShowTrending] = useState(true);
 
-  // Simulate getting user's location
-  useEffect(() => {
-    // In a real app, this would use geolocation API
-    const locationTimer = setTimeout(() => {
-      setUserLocation({ x: 50, y: 50 });
-      toast.success("Location updated");
-    }, 2000);
-    
-    return () => clearTimeout(locationTimer);
-  }, []);
-
-  const handleZoomIn = () => {
-    setMapZoom(prev => Math.min(prev + 0.5, 3));
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
-  const handleZoomOut = () => {
-    setMapZoom(prev => Math.max(prev - 0.5, 0.5));
-  };
-
-  const handlePinClick = (id: string) => {
-    setSelectedPin(id);
-  };
-
-  const handleViewProfile = (userId: string) => {
-    navigate(`/profile/${userId}`);
-  };
-
-  const handleSendMessage = (userId: string) => {
-    navigate(`/chat/${userId}`);
-  };
-
-  const handleViewEvent = (eventId: string) => {
-    toast({
-      title: "Event details",
-      description: "Opening event information",
-      action: {
-        label: "RSVP",
-        onClick: () => toast.success("You're going to this event!"),
-      },
-    });
-  };
-
-  const handleSearchLocation = () => {
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
     if (searchQuery.trim()) {
       toast.info(`Searching for "${searchQuery}"`);
     }
   };
 
+  const handleMapTypeChange = (type: 'standard' | 'satellite' | 'hybrid') => {
+    setMapType(type);
+    setShowLayerOptions(false);
+    toast.success(`Map type changed to ${type}`);
+  };
+
+  const handleZoomIn = () => {
+    if (zoomLevel < 10) {
+      setZoomLevel(prev => prev + 1);
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (zoomLevel > 1) {
+      setZoomLevel(prev => prev - 1);
+    }
+  };
+
+  const handleToggleMyLocation = () => {
+    setShowMyLocation(prev => !prev);
+    toast.info(showMyLocation ? 'Your location is now hidden from others' : 'Your location is now visible to others');
+  };
+
+  const handleToggleFriends = () => {
+    setShowFriends(prev => !prev);
+    toast.info(showFriends ? 'Friends are now hidden on the map' : 'Friends are now visible on the map');
+  };
+
+  const handleToggleTrending = () => {
+    setShowTrending(prev => !prev);
+    toast.info(showTrending ? 'Trending locations are now hidden' : 'Trending locations are now visible');
+  };
+
+  const handleUserClick = (userId: string) => {
+    toast({
+      description: "Open chat or view profile?",
+      action: {
+        label: "Chat",
+        onClick: () => {
+          toast.success("Opening chat");
+        },
+      },
+    });
+  };
+
+  const handleLocationClick = (locationId: string) => {
+    toast.info("Showing location details");
+  };
+
   return (
     <MobileLayout>
-      <div className="flex flex-col h-full">
-        <div className="p-4 glass-morphism sticky top-0 z-10">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold">Map</h1>
-            <Tabs 
-              defaultValue="users" 
-              value={mapMode} 
-              onValueChange={(value) => setMapMode(value as 'users' | 'events')}
-              className="h-9"
-            >
-              <TabsList className="grid grid-cols-2 w-[200px]">
-                <TabsTrigger value="users" className="flex items-center gap-1">
-                  <Users size={14} />
-                  <span>Friends</span>
-                </TabsTrigger>
-                <TabsTrigger value="events" className="flex items-center gap-1">
-                  <Zap size={14} />
-                  <span>Events</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <Input 
-              placeholder="Search location" 
-              className="pl-9 pr-10 bg-white/5 border-none rounded-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
-            />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-              onClick={handleSearchLocation}
-            >
-              <MapPin size={16} className="text-gray-400" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="relative flex-1 overflow-hidden bg-gray-900">
-          {/* Simulated map background */}
-          <div 
-            className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-50"
-            style={{
-              transform: `scale(${mapZoom})`,
-              transition: 'transform 0.3s ease-out'
-            }}
-          ></div>
-          
-          {/* User's location */}
-          <div 
-            className="absolute z-20 w-4 h-4 bg-blue-500 rounded-full animate-pulse"
-            style={{
-              left: `${userLocation.x}%`,
-              top: `${userLocation.y}%`,
-              transform: 'translate(-50%, -50%)'
-            }}
-          >
-            <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75"></div>
+      <div className="relative h-full flex flex-col">
+        {/* Map Area */}
+        <div 
+          className="flex-1 bg-gray-900 relative" 
+          style={{ 
+            backgroundImage: `url('/placeholder.svg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: mapType === 'satellite' ? 'brightness(1.2) contrast(1.1)' : 'none',
+          }}
+        >
+          {/* Map content - would be replaced with actual map in a real app */}
+          <div className="absolute inset-0 flex items-center justify-center text-5xl text-white/20 font-bold">
+            MAP
           </div>
           
-          {/* Map pins */}
-          {mapMode === 'users' && nearbyUsers.map(user => (
-            <div 
-              key={user.id}
-              className={`absolute z-10 transition-transform duration-300 ${selectedPin === user.id ? 'scale-125' : 'scale-100'}`}
-              style={{
-                left: `${user.location.x}%`,
-                top: `${user.location.y}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-              onClick={() => handlePinClick(user.id)}
-            >
-              <div className={`relative ${user.hasStory ? 'ring-2 ring-snap-yellow p-0.5 rounded-full' : ''}`}>
-                <Avatar className="h-10 w-10 border-2 border-white">
-                  <AvatarImage src={user.avatar} />
-                  <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
-                </Avatar>
-                {user.isOnline && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></span>
-                )}
-                {user.hasNFT && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center text-[8px] font-bold text-white">NFT</span>
-                )}
-              </div>
-              
-              {selectedPin === user.id && (
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-40 p-2 rounded-lg bg-black/80 backdrop-blur-sm animate-fade-in">
-                  <div className="flex items-center gap-2 mb-2">
-                    <p className="text-sm font-medium truncate">{user.name}</p>
-                    <span className="text-xs bg-gray-700 px-1.5 py-0.5 rounded">{user.distance}</span>
-                  </div>
-                  <div className="flex justify-between gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="flex-1 h-8 text-xs"
-                      onClick={() => handleViewProfile(user.id)}
-                    >
-                      <User size={12} className="mr-1" />
-                      Profile
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="flex-1 h-8 text-xs bg-snap-yellow text-black hover:bg-snap-yellow/90"
-                      onClick={() => handleSendMessage(user.id)}
-                    >
-                      <MessageCircle size={12} className="mr-1" />
-                      Chat
-                    </Button>
+          {/* Friend pins on map (simplified) */}
+          {showFriends && (
+            <>
+              <div className="absolute top-1/4 left-1/3 map-pin-animate">
+                <div className="relative">
+                  <MapPin size={30} className="text-snap-yellow" />
+                  <div className="absolute -top-0.5 left-1.5 w-4 h-4">
+                    <Avatar className="w-5 h-5 border border-snap-yellow">
+                      <AvatarImage src="/placeholder.svg" />
+                      <AvatarFallback>A</AvatarFallback>
+                    </Avatar>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+              
+              <div className="absolute top-1/3 right-1/4 map-pin-animate">
+                <div className="relative">
+                  <MapPin size={30} className="text-snap-yellow" />
+                  <div className="absolute -top-0.5 left-1.5 w-4 h-4">
+                    <Avatar className="w-5 h-5 border border-snap-yellow">
+                      <AvatarImage src="/placeholder.svg" />
+                      <AvatarFallback>S</AvatarFallback>
+                    </Avatar>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
           
-          {mapMode === 'events' && events.map(event => (
-            <div 
-              key={event.id}
-              className={`absolute z-10 transition-transform duration-300 ${selectedPin === event.id ? 'scale-125' : 'scale-100'}`}
-              style={{
-                left: `${event.coordinates.x}%`,
-                top: `${event.coordinates.y}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-              onClick={() => handlePinClick(event.id)}
-            >
+          {/* Trending location pins */}
+          {showTrending && (
+            <>
+              <div className="absolute bottom-1/3 right-1/3 map-pin-animate">
+                <div className="relative">
+                  <MapPin size={30} className="text-blue-400" />
+                  <div className="absolute -top-0.5 left-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                    230
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-1/4 left-1/4 map-pin-animate">
+                <div className="relative">
+                  <MapPin size={30} className="text-purple-400" />
+                  <div className="absolute -top-0.5 left-1 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                    75
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* My location pin */}
+          {showMyLocation && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="relative">
-                <div className="h-12 w-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <Zap size={20} className="text-snap-yellow" />
-                </div>
-                {event.verified && (
-                  <span className="absolute bottom-0 right-0 w-5 h-5 bg-snap-yellow rounded-full border-2 border-gray-900 flex items-center justify-center text-black text-[10px] font-bold">✓</span>
-                )}
-              </div>
-              
-              {selectedPin === event.id && (
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 rounded-lg bg-black/80 backdrop-blur-sm animate-fade-in overflow-hidden">
-                  <div className="relative h-20">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-2">
-                      <div>
-                        <p className="text-sm font-bold truncate">{event.title}</p>
-                        <p className="text-xs text-gray-300">{event.location}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs bg-gray-700 px-1.5 py-0.5 rounded">{event.date}</span>
-                      <span className="text-xs">
-                        <Users size={10} className="inline mr-1" />
-                        {event.attendees}
-                      </span>
-                    </div>
-                    <Button 
-                      size="sm"
-                      className="w-full h-8 text-xs bg-snap-yellow text-black hover:bg-snap-yellow/90"
-                      onClick={() => handleViewEvent(event.id)}
-                    >
-                      <Info size={12} className="mr-1" />
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* Zoom controls */}
-          <div className="absolute bottom-4 right-4 z-10">
-            <div className="flex flex-col gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm"
-                onClick={handleZoomIn}
-              >
-                <Plus size={20} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm"
-                onClick={handleZoomOut}
-              >
-                <Minus size={20} />
-              </Button>
-            </div>
-          </div>
-          
-          {/* User list (when map is zoomed out) */}
-          {mapZoom < 1 && (
-            <div className="absolute bottom-4 left-4 right-20 z-10 bg-black/60 backdrop-blur-md rounded-lg overflow-hidden animate-fade-in">
-              <div className="p-2 border-b border-white/10">
-                <p className="text-sm font-medium">
-                  {mapMode === 'users' ? 'Nearby Friends' : 'Upcoming Events'}
-                </p>
-              </div>
-              <div className="max-h-48 overflow-y-auto">
-                {mapMode === 'users' ? (
-                  nearbyUsers.map(user => (
-                    <div 
-                      key={user.id}
-                      className="flex items-center gap-2 p-2 hover:bg-white/5 cursor-pointer"
-                      onClick={() => handlePinClick(user.id)}
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{user.name}</p>
-                        <p className="text-xs text-gray-400">{user.distance}</p>
-                      </div>
-                      <Badge className="bg-gray-700 hover:bg-gray-600">
-                        {user.isOnline ? 'Online' : 'Offline'}
-                      </Badge>
-                    </div>
-                  ))
-                ) : (
-                  events.map(event => (
-                    <div 
-                      key={event.id}
-                      className="flex items-center gap-2 p-2 hover:bg-white/5 cursor-pointer"
-                      onClick={() => handlePinClick(event.id)}
-                    >
-                      <div className="h-8 w-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                        <Zap size={16} className="text-snap-yellow" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{event.title}</p>
-                        <p className="text-xs text-gray-400">{event.date}</p>
-                      </div>
-                      {event.verified && (
-                        <Badge className="bg-snap-yellow text-black">Verified</Badge>
-                      )}
-                    </div>
-                  ))
-                )}
+                <div className="absolute inset-0 bg-snap-yellow opacity-20 rounded-full animate-ping"></div>
+                <div className="relative z-10 w-6 h-6 bg-snap-yellow rounded-full border-2 border-white"></div>
               </div>
             </div>
           )}
         </div>
+        
+        {/* Search bar overlay */}
+        <div className="absolute top-4 left-4 right-4 z-10">
+          <form onSubmit={handleSearch} className="relative">
+            <Input
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search locations"
+              className="pr-10 pl-9 py-6 rounded-full bg-white/10 backdrop-blur-md border-0 text-white placeholder:text-white/50"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70" size={18} />
+            <Button 
+              type="submit" 
+              size="icon" 
+              variant="ghost" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-white/70"
+            >
+              <MapPin size={18} className="text-snap-yellow" />
+            </Button>
+          </form>
+        </div>
+        
+        {/* Bottom controls */}
+        <div className="absolute bottom-24 right-4 z-10 flex flex-col gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="w-10 h-10 rounded-full backdrop-blur-md bg-white/10 border-0"
+            onClick={handleZoomIn}
+          >
+            <ZoomIn size={18} className="text-white" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="w-10 h-10 rounded-full backdrop-blur-md bg-white/10 border-0"
+            onClick={handleZoomOut}
+          >
+            <ZoomOut size={18} className="text-white" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className={cn(
+              "w-10 h-10 rounded-full backdrop-blur-md bg-white/10 border-0",
+              showLayerOptions && "bg-white/20"
+            )}
+            onClick={() => setShowLayerOptions(!showLayerOptions)}
+          >
+            <Layers size={18} className={cn("text-white", showLayerOptions && "text-snap-yellow")} />
+          </Button>
+        </div>
+        
+        {/* Layer selection popover */}
+        {showLayerOptions && (
+          <div className="absolute bottom-36 right-16 z-10 p-3 rounded-lg backdrop-blur-md bg-white/10 animate-fade-in">
+            <div className="flex flex-col gap-2 w-36">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={cn(
+                  "justify-start px-2 py-1 h-auto text-sm text-white/70",
+                  mapType === 'standard' && "bg-white/10 text-white"
+                )}
+                onClick={() => handleMapTypeChange('standard')}
+              >
+                Standard
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={cn(
+                  "justify-start px-2 py-1 h-auto text-sm text-white/70",
+                  mapType === 'satellite' && "bg-white/10 text-white"
+                )}
+                onClick={() => handleMapTypeChange('satellite')}
+              >
+                Satellite
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={cn(
+                  "justify-start px-2 py-1 h-auto text-sm text-white/70",
+                  mapType === 'hybrid' && "bg-white/10 text-white"
+                )}
+                onClick={() => handleMapTypeChange('hybrid')}
+              >
+                Hybrid
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        {/* Control Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 glass-morphism z-10 px-4 flex items-center">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="rounded-full flex items-center gap-1 px-3 py-1 text-white/90"
+            onClick={() => setShowNearby(!showNearby)}
+          >
+            <span>Nearby</span>
+            <ChevronDown 
+              size={16} 
+              className={cn(
+                "transition-transform",
+                showNearby && "transform rotate-180"
+              )} 
+            />
+          </Button>
+          
+          <div className="flex-1" />
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white/90"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            <Settings size={20} />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white/90"
+          >
+            <User size={20} />
+          </Button>
+        </div>
+        
+        {/* Nearby friends sheet */}
+        {showNearby && (
+          <div className="absolute bottom-20 left-0 right-0 bg-black/70 backdrop-blur-lg rounded-t-xl p-4 z-20 animate-slide-up">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-lg">Nearby Friends</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs"
+                onClick={() => setShowNearby(false)}
+              >
+                Close
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {nearbyUsers.map(user => (
+                <div 
+                  key={user.id} 
+                  className="flex items-center justify-between bg-white/5 rounded-lg p-2 cursor-pointer"
+                  onClick={() => handleUserClick(user.id)}
+                >
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      {user.isOnline && (
+                        <div className="absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{user.name}</p>
+                      <p className="text-xs text-gray-400">{user.distance}</p>
+                    </div>
+                  </div>
+                  <MapPin size={16} className="text-snap-yellow ml-2" />
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4">
+              <h3 className="font-semibold text-lg mb-3">Trending Locations</h3>
+              <div className="space-y-3">
+                {trendingLocations.map(location => (
+                  <div 
+                    key={location.id} 
+                    className="flex items-center justify-between bg-white/5 rounded-lg p-2 cursor-pointer"
+                    onClick={() => handleLocationClick(location.id)}
+                  >
+                    <div>
+                      <p className="font-medium text-sm">{location.name}</p>
+                      <p className="text-xs text-gray-400">{location.address}</p>
+                    </div>
+                    <div className="bg-purple-500/20 rounded-full px-2 py-0.5 text-xs">
+                      {location.attendees} people
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Settings sheet */}
+        <Sheet open={showSettings} onOpenChange={setShowSettings}>
+          <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh]">
+            <div className="py-2">
+              <h2 className="text-xl font-bold mb-4">Map Settings</h2>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="toggle-location" className="text-sm font-medium">
+                    Show My Location
+                  </label>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-location"
+                    checked={showMyLocation}
+                    onChange={handleToggleMyLocation}
+                    className="toggle toggle-primary"
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <label htmlFor="toggle-friends" className="text-sm font-medium">
+                    Show Friends
+                  </label>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-friends"
+                    checked={showFriends}
+                    onChange={handleToggleFriends}
+                    className="toggle toggle-primary"
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <label htmlFor="toggle-trending" className="text-sm font-medium">
+                    Show Trending Locations
+                  </label>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-trending"
+                    checked={showTrending}
+                    onChange={handleToggleTrending}
+                    className="toggle toggle-primary"
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <h3 className="text-sm font-medium mb-2">Map Type</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      variant={mapType === 'standard' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => handleMapTypeChange('standard')}
+                      className={mapType === 'standard' ? 'bg-snap-yellow text-black' : ''}
+                    >
+                      Standard
+                    </Button>
+                    <Button 
+                      variant={mapType === 'satellite' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => handleMapTypeChange('satellite')}
+                      className={mapType === 'satellite' ? 'bg-snap-yellow text-black' : ''}
+                    >
+                      Satellite
+                    </Button>
+                    <Button 
+                      variant={mapType === 'hybrid' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => handleMapTypeChange('hybrid')}
+                      className={mapType === 'hybrid' ? 'bg-snap-yellow text-black' : ''}
+                    >
+                      Hybrid
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="pt-4">
+                  <Button className="w-full" onClick={() => setShowSettings(false)}>
+                    Save Settings
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </MobileLayout>
   );

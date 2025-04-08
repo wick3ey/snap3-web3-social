@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Camera, ArrowLeft, Paperclip, Send, Smile, Plus, CreditCard, Image, Mic } from 'lucide-react';
+import { Camera, ArrowLeft, Paperclip, Send, Smile, Plus, CreditCard, Image, Mic, X, FileImage } from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ChatMessage from '@/components/chat/ChatMessage';
 import { Button } from '@/components/ui/button';
@@ -251,7 +251,6 @@ const ChatConversationPage: React.FC = () => {
 
   const handleVideoCall = () => {
     toast({
-      title: "Starting video call",
       description: "Calling Alex...",
       action: {
         label: "Cancel",
