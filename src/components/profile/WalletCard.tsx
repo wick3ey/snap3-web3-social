@@ -115,7 +115,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-snap-yellow"
+            className="text-solana-purple"
             onClick={() => setDepositOpen(true)}
           >
             Deposit
@@ -123,7 +123,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-snap-yellow"
+            className="text-solana-purple"
             onClick={() => setSwapOpen(true)}
           >
             Swap
@@ -131,7 +131,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-snap-yellow"
+            className="text-solana-purple"
             onClick={() => setSendOpen(true)}
           >
             Send
@@ -148,7 +148,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <div className="flex flex-col gap-4 py-4">
             <div className="flex justify-center mb-4">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
-                <PlusCircle className="h-8 w-8 text-snap-yellow" />
+                <PlusCircle className="h-8 w-8 text-solana-purple" />
               </div>
             </div>
             
@@ -190,7 +190,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <DialogFooter>
             <Button
               onClick={handleDepositSubmit}
-              className="w-full bg-snap-yellow text-black hover:bg-snap-yellow/90"
+              className="w-full bg-solana-purple text-white hover:bg-solana-purple/90"
             >
               I've Sent SOL
             </Button>
@@ -207,7 +207,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <div className="flex flex-col gap-4 py-4">
             <div className="flex justify-center mb-4">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
-                <ArrowUpDown className="h-8 w-8 text-snap-yellow" />
+                <ArrowUpDown className="h-8 w-8 text-solana-purple" />
               </div>
             </div>
             
@@ -274,7 +274,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
             <Button
               onClick={handleSwapSubmit}
               disabled={!swapAmount || parseFloat(swapAmount) <= 0}
-              className="w-full bg-snap-yellow text-black hover:bg-snap-yellow/90"
+              className="w-full bg-solana-purple text-white hover:bg-solana-purple/90"
             >
               Swap Tokens
             </Button>
@@ -291,7 +291,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
           <div className="flex flex-col gap-4 py-4">
             <div className="flex justify-center mb-4">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
-                <Send className="h-8 w-8 text-snap-yellow" />
+                <Send className="h-8 w-8 text-solana-purple" />
               </div>
             </div>
             
@@ -346,7 +346,7 @@ const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
             <Button
               onClick={handleSendSubmit}
               disabled={!amount || parseFloat(amount) <= 0 || !recipient}
-              className="w-full bg-snap-yellow text-black hover:bg-snap-yellow/90"
+              className="w-full bg-solana-purple text-white hover:bg-solana-purple/90"
             >
               Send SOL
             </Button>

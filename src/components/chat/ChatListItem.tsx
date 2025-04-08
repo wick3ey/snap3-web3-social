@@ -56,7 +56,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
           )}>{name}</h3>
           <span className={cn(
             "text-xs text-gray-400",
-            unreadCount > 0 ? "text-snap-yellow font-medium" : ""
+            unreadCount > 0 ? "text-solana-purple font-medium" : ""
           )}>{time}</span>
         </div>
         <p className={cn(
@@ -66,7 +66,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       </div>
       
       {unreadCount > 0 && (
-        <Badge className="rounded-full bg-snap-yellow text-black ml-1">{unreadCount}</Badge>
+        <Badge className="rounded-full bg-solana-purple text-white ml-1">{unreadCount}</Badge>
       )}
     </div>
   );

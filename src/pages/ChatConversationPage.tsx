@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -374,7 +375,7 @@ const ChatConversationPage: React.FC = () => {
               onMouseUp={!message.trim() && isRecording ? handleStopRecording : undefined}
             >
               {message.trim() ? (
-                <Send size={20} className="text-snap-yellow" />
+                <Send size={20} className="text-solana-purple" />
               ) : isRecording ? (
                 <XIcon size={20} className="text-red-500" />
               ) : (
@@ -417,8 +418,8 @@ const ChatConversationPage: React.FC = () => {
                   className="flex flex-col items-center gap-1"
                   onClick={() => setShowTransactionModal(true)}
                 >
-                  <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                    <CreditCard size={24} className="text-yellow-400" />
+                  <div className="w-12 h-12 rounded-full bg-solana-purple/20 flex items-center justify-center">
+                    <CreditCard size={24} className="text-solana-purple" />
                   </div>
                   <span className="text-xs text-gray-400">SOL</span>
                 </button>

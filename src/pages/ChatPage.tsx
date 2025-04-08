@@ -84,7 +84,7 @@ const ChatPage = () => {
         <div className="p-4 glass-morphism sticky top-0 z-10">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold">Chat</h1>
-            <Button size="icon" className="rounded-full bg-snap-yellow text-black" onClick={handleCreateNewChat}>
+            <Button size="icon" className="rounded-full bg-solana-purple text-white" onClick={handleCreateNewChat}>
               <Plus size={18} />
             </Button>
           </div>

@@ -94,7 +94,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         <div className={cn(
           "rounded-2xl p-3",
           isOwn 
-            ? "bg-snap-yellow text-black rounded-tr-none" 
+            ? "bg-solana-purple text-white rounded-tr-none" 
             : "bg-white/10 rounded-tl-none"
         )}>
           {renderContent()}

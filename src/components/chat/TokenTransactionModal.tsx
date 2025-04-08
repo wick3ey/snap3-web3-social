@@ -93,7 +93,7 @@ const TokenTransactionModal: React.FC<TokenTransactionModalProps> = ({
                 type="text"
                 value={amount}
                 onChange={handleAmountChange}
-                className="text-2xl font-bold text-center h-14 bg-white/5 border-white/10 focus:border-snap-yellow"
+                className="text-2xl font-bold text-center h-14 bg-white/5 border-white/10 focus:border-solana-purple"
                 placeholder="0.00"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
@@ -116,13 +116,13 @@ const TokenTransactionModal: React.FC<TokenTransactionModalProps> = ({
           </div>
           
           <Button 
-            className="w-full bg-snap-yellow text-black hover:bg-snap-yellow/90"
+            className="w-full bg-solana-purple text-white hover:bg-solana-purple/90"
             onClick={handleSend}
             disabled={isProcessing || !amount || parseFloat(amount) <= 0}
           >
             {isProcessing ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                 <span>Processing...</span>
               </div>
             ) : (
