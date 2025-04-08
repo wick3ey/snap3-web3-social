@@ -12,6 +12,7 @@ interface ChatListItemProps {
   isOnline?: boolean;
   hasStory?: boolean;
   hasNFTAvatar?: boolean;
+  onClick?: () => void;
 }
 
 const ChatListItem: React.FC<ChatListItemProps> = ({
@@ -23,9 +24,13 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   isOnline = false,
   hasStory = false,
   hasNFTAvatar = false,
+  onClick,
 }) => {
   return (
-    <div className="flex items-center p-3 gap-3 hover:bg-white/5 rounded-lg transition-colors">
+    <div 
+      className="flex items-center p-3 gap-3 hover:bg-white/5 active:bg-white/10 rounded-lg transition-colors cursor-pointer"
+      onClick={onClick}
+    >
       <div className="relative">
         <div className={cn(
           "w-12 h-12 rounded-full overflow-hidden",
@@ -45,14 +50,23 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
-          <h3 className="font-medium truncate">{name}</h3>
-          <span className="text-xs text-gray-400">{time}</span>
+          <h3 className={cn(
+            "font-medium truncate",
+            unreadCount > 0 ? "font-semibold" : ""
+          )}>{name}</h3>
+          <span className={cn(
+            "text-xs text-gray-400",
+            unreadCount > 0 ? "text-snap-yellow font-medium" : ""
+          )}>{time}</span>
         </div>
-        <p className="text-sm text-gray-400 truncate">{lastMessage}</p>
+        <p className={cn(
+          "text-sm text-gray-400 truncate",
+          unreadCount > 0 ? "text-gray-200 font-medium" : ""
+        )}>{lastMessage}</p>
       </div>
       
       {unreadCount > 0 && (
-        <Badge className="rounded-full bg-snap-yellow text-black">{unreadCount}</Badge>
+        <Badge className="rounded-full bg-snap-yellow text-black ml-1">{unreadCount}</Badge>
       )}
     </div>
   );

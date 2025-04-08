@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import OnboardingPage from "./pages/OnboardingPage";
 import CameraPage from "./pages/CameraPage";
 import ChatPage from "./pages/ChatPage";
+import ChatConversationPage from "./pages/ChatConversationPage";
 import StoriesPage from "./pages/StoriesPage";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/camera" element={<CameraPage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat/:chatId" element={<ChatConversationPage />} />
           <Route path="/stories" element={<StoriesPage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/profile" element={<ProfilePage />} />

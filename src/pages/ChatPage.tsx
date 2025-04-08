@@ -1,12 +1,15 @@
 
 import React from 'react';
 import { Plus, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ChatListItem from '@/components/chat/ChatListItem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const ChatPage = () => {
+  const navigate = useNavigate();
+  
   // Dummy data for chat list
   const chats = [
     {
@@ -66,13 +69,22 @@ const ChatPage = () => {
     },
   ];
 
+  const handleCreateNewChat = () => {
+    // In a real app, this would open a contact selection UI
+    console.log('Create new chat');
+  };
+
+  const handleChatItemClick = (chatId: string) => {
+    navigate(`/chat/${chatId}`);
+  };
+
   return (
     <MobileLayout>
       <div className="flex flex-col h-full">
         <div className="p-4 glass-morphism sticky top-0 z-10">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold">Chat</h1>
-            <Button size="icon" className="rounded-full bg-snap-yellow text-black">
+            <Button size="icon" className="rounded-full bg-snap-yellow text-black" onClick={handleCreateNewChat}>
               <Plus size={18} />
             </Button>
           </div>
@@ -87,17 +99,18 @@ const ChatPage = () => {
 
         <div className="flex-1 overflow-auto">
           {chats.map((chat) => (
-            <ChatListItem
-              key={chat.id}
-              name={chat.name}
-              avatar={chat.avatar}
-              lastMessage={chat.lastMessage}
-              time={chat.time}
-              unreadCount={chat.unreadCount}
-              isOnline={chat.isOnline}
-              hasStory={chat.hasStory}
-              hasNFTAvatar={chat.hasNFTAvatar}
-            />
+            <div key={chat.id} onClick={() => handleChatItemClick(chat.id)}>
+              <ChatListItem
+                name={chat.name}
+                avatar={chat.avatar}
+                lastMessage={chat.lastMessage}
+                time={chat.time}
+                unreadCount={chat.unreadCount}
+                isOnline={chat.isOnline}
+                hasStory={chat.hasStory}
+                hasNFTAvatar={chat.hasNFTAvatar}
+              />
+            </div>
           ))}
         </div>
       </div>
