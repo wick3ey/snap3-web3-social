@@ -1,6 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { toast } from 'sonner';
+import { 
+  MapPin, Search, ZoomIn, ZoomOut, Layers, 
+  User, Settings, ChevronDown 
+} from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
+
+interface NearbyUser {
+  id: string;
+  name: string;
+  avatar: string;
+  distance: string;
+  isOnline: boolean;
+}
+
+interface TrendingLocation {
+  id: string;
+  name: string;
+  address: string;
+  attendees: number;
+}
+
+const nearbyUsers: NearbyUser[] = [
+  {
+    id: '1',
+    name: 'Alex Web3',
+    avatar: '/placeholder.svg',
+    distance: '0.5 miles away',
+    isOnline: true
+  },
+  {
+    id: '2',
+    name: 'Solana Sam',
+    avatar: '/placeholder.svg',
+    distance: '1.2 miles away',
+    isOnline: false
+  },
+  {
+    id: '3',
+    name: 'Crypto Chris',
+    avatar: '/placeholder.svg',
+    distance: '2.5 miles away',
+    isOnline: true
+  }
+];
+
+const trendingLocations: TrendingLocation[] = [
+  {
+    id: 't1',
+    name: 'Solana Hackathon',
+    address: 'Tech Hub, Downtown',
+    attendees: 230
+  },
+  {
+    id: 't2',
+    name: 'NFT Gallery Opening',
+    address: 'Digital Arts Center',
+    attendees: 75
+  },
+  {
+    id: 't3',
+    name: 'Web3 Meetup',
+    address: 'Blockchain Cafe',
+    attendees: 120
+  }
+];
 
 const MapPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,7 +128,7 @@ const MapPage = () => {
 
   const handleUserClick = (userId: string) => {
     toast({
-      description: "Open chat or view profile?",
+      content: "Open chat or view profile?",
       action: {
         label: "Chat",
         onClick: () => {
@@ -85,7 +154,6 @@ const MapPage = () => {
   return (
     <MobileLayout>
       <div className="relative h-full flex flex-col">
-        {/* Map Area */}
         <div 
           className="flex-1 bg-gray-900 relative" 
           style={{ 
@@ -95,12 +163,10 @@ const MapPage = () => {
             filter: mapType === 'satellite' ? 'brightness(1.2) contrast(1.1)' : 'none',
           }}
         >
-          {/* Map content - would be replaced with actual map in a real app */}
           <div className="absolute inset-0 flex items-center justify-center text-5xl text-white/20 font-bold">
             MAP
           </div>
           
-          {/* Friend pins on map (simplified) */}
           {showFriends && (
             <>
               <div className="absolute top-1/4 left-1/3 map-pin-animate">
@@ -129,7 +195,6 @@ const MapPage = () => {
             </>
           )}
           
-          {/* Trending location pins */}
           {showTrending && (
             <>
               <div className="absolute bottom-1/3 right-1/3 map-pin-animate">
@@ -152,7 +217,6 @@ const MapPage = () => {
             </>
           )}
           
-          {/* My location pin */}
           {showMyLocation && (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="relative">
@@ -163,7 +227,6 @@ const MapPage = () => {
           )}
         </div>
         
-        {/* Search bar overlay */}
         <div className="absolute top-4 left-4 right-4 z-10">
           <form onSubmit={handleSearch} className="relative">
             <Input
@@ -184,7 +247,6 @@ const MapPage = () => {
           </form>
         </div>
         
-        {/* Bottom controls */}
         <div className="absolute bottom-24 right-4 z-10 flex flex-col gap-2">
           <Button 
             variant="outline" 
@@ -215,7 +277,6 @@ const MapPage = () => {
           </Button>
         </div>
         
-        {/* Layer selection popover */}
         {showLayerOptions && (
           <div className="absolute bottom-36 right-16 z-10 p-3 rounded-lg backdrop-blur-md bg-white/10 animate-fade-in">
             <div className="flex flex-col gap-2 w-36">
@@ -256,7 +317,6 @@ const MapPage = () => {
           </div>
         )}
         
-        {/* Control Bar */}
         <div className="absolute bottom-0 left-0 right-0 h-20 glass-morphism z-10 px-4 flex items-center">
           <Button 
             variant="ghost" 
@@ -294,7 +354,6 @@ const MapPage = () => {
           </Button>
         </div>
         
-        {/* Nearby friends sheet */}
         {showNearby && (
           <div className="absolute bottom-20 left-0 right-0 bg-black/70 backdrop-blur-lg rounded-t-xl p-4 z-20 animate-slide-up">
             <div className="flex justify-between items-center mb-4">
@@ -359,7 +418,6 @@ const MapPage = () => {
           </div>
         )}
         
-        {/* Settings sheet */}
         <Sheet open={showSettings} onOpenChange={setShowSettings}>
           <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh]">
             <div className="py-2">

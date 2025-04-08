@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, MoreVertical, Send, Camera, 
   X as XIcon, Smile, Paperclip, Mic, 
-  Image as ImageIcon, FileImage as FileImageIcon
+  Image as ImageIcon, FileImage as FileImageIcon,
+  Plus, CreditCard
 } from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ChatMessage from '@/components/chat/ChatMessage';
+import TokenTransactionModal from '@/components/chat/TokenTransactionModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ChatMessageData {
   id: string;
@@ -242,7 +245,7 @@ const ChatConversationPage: React.FC = () => {
 
   const handleVideoCall = () => {
     toast({
-      description: "Calling Alex...",
+      content: "Calling Alex...",
       action: {
         label: "Cancel",
         onClick: () => toast.error("Call canceled"),
@@ -251,7 +254,11 @@ const ChatConversationPage: React.FC = () => {
   };
 
   const handleTokenTransfer = () => {
-    toast.info("Send SOL to this contact", {
+    const amount = 0.5;
+    const contact = { name: 'Alex' };
+    
+    toast({
+      content: "Send SOL to this contact",
       action: {
         label: "Send",
         onClick: () => {
