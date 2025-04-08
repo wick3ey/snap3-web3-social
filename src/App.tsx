@@ -20,22 +20,24 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/camera" element={<CameraPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/chat/:chatId" element={<ChatConversationPage />} />
-          <Route path="/stories" element={<StoriesPage />} />
-          <Route path="/pump" element={<PumpPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/profile/edit" element={<EditProfilePage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <div className="bg-snap-dark min-h-screen text-white">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/camera" element={<CameraPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/:chatId" element={<ChatConversationPage />} />
+            <Route path="/stories" element={<StoriesPage />} />
+            <Route path="/pump" element={<PumpPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<EditProfilePage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );
