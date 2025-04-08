@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { toast } from 'sonner';
@@ -152,7 +151,6 @@ const PumpPage = () => {
       const file = e.target.files[0];
       setNewToken({...newToken, logo: file});
       
-      // Create a preview
       const reader = new FileReader();
       reader.onload = (event) => {
         setPreviewLogo(event.target?.result as string);
@@ -169,7 +167,6 @@ const PumpPage = () => {
     
     toast.success(`Creating ${newToken.name} (${newToken.symbol}) token on Solana...`);
     
-    // In a real app, here we would interact with an API to create the token
     setTimeout(() => {
       toast.success("Token created successfully! 🚀");
       setShowCreateDialog(false);
@@ -201,7 +198,6 @@ const PumpPage = () => {
   return (
     <MobileLayout>
       <div className="relative flex flex-col h-full">
-        {/* Header */}
         <div className="w-full bg-gradient-to-r from-solana-purple via-snap-purple to-solana-blue p-4 pb-16">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -232,7 +228,6 @@ const PumpPage = () => {
           </form>
         </div>
         
-        {/* Trending List */}
         <div className="relative -mt-10 mx-4 z-10">
           <div className="neo-blur rounded-2xl p-4 bg-gray-900/50">
             <div className="flex items-center mb-4">
@@ -281,7 +276,6 @@ const PumpPage = () => {
           </div>
         </div>
         
-        {/* Create Token Dialog */}
         <Dialog open={showCreateDialog} onOpenChange={(open) => {
           setShowCreateDialog(open);
           if (!open) resetCreateForm();
@@ -294,7 +288,6 @@ const PumpPage = () => {
             </DialogHeader>
             
             <div className="space-y-5 py-4">
-              {/* Logo Upload */}
               <div className="flex flex-col items-center justify-center">
                 <div 
                   onClick={() => fileInputRef.current?.click()}
@@ -379,7 +372,6 @@ const PumpPage = () => {
           </DialogContent>
         </Dialog>
         
-        {/* Token Details Sheet */}
         {showDetails && (
           <Sheet open={!!showDetails} onOpenChange={() => setShowDetails(null)}>
             <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh] bg-gradient-to-b from-gray-900 to-black/90 backdrop-blur-lg border-t border-solana-purple/20">
