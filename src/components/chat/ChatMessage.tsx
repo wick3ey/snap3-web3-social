@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Check, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatMessageProps {
   content: string;
@@ -12,6 +12,7 @@ interface ChatMessageProps {
   type?: 'text' | 'image' | 'transaction';
   senderAvatar?: string;
   senderName?: string;
+  senderId?: string;
   transactionAmount?: number;
 }
 
@@ -23,8 +24,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   type = 'text',
   senderAvatar,
   senderName,
+  senderId = '1',
   transactionAmount,
 }) => {
+  const navigate = useNavigate();
+
   const renderStatus = () => {
     switch(status) {
       case 'pending':
@@ -72,13 +76,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     }
   };
 
+  const handleProfileClick = () => {
+    if (!isOwn && senderName) {
+      navigate(`/profile/friend/${senderId}`);
+    }
+  };
+
   return (
     <div className={cn(
       "flex mb-3 max-w-[80%]",
       isOwn ? "ml-auto" : "mr-auto"
     )}>
       {!isOwn && (
-        <div className="mr-2 mt-1">
+        <div 
+          className="mr-2 mt-1 cursor-pointer"
+          onClick={handleProfileClick}
+        >
           <Avatar className="w-8 h-8">
             <AvatarImage src={senderAvatar} />
             <AvatarFallback>{senderName?.substring(0, 2) || "UN"}</AvatarFallback>
@@ -88,7 +101,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       
       <div className="flex flex-col">
         {!isOwn && senderName && (
-          <span className="text-xs text-gray-400 mb-1">{senderName}</span>
+          <span 
+            className="text-xs text-gray-400 mb-1 cursor-pointer hover:text-solana-purple transition-colors"
+            onClick={handleProfileClick}
+          >
+            {senderName}
+          </span>
         )}
         
         <div className={cn(

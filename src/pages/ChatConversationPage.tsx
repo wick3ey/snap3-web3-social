@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -25,6 +24,7 @@ interface ChatMessageData {
   type: 'text' | 'image' | 'transaction';
   senderAvatar?: string;
   senderName?: string;
+  senderId?: string;
   transactionAmount?: number;
 }
 
@@ -38,6 +38,7 @@ const dummyMessages: ChatMessageData[] = [
     type: 'text',
     senderAvatar: '/placeholder.svg',
     senderName: 'Alex',
+    senderId: '1',
   },
   {
     id: '2',
@@ -56,6 +57,7 @@ const dummyMessages: ChatMessageData[] = [
     type: 'text',
     senderAvatar: '/placeholder.svg',
     senderName: 'Alex',
+    senderId: '1',
   },
   {
     id: '4',
@@ -75,6 +77,7 @@ const dummyMessages: ChatMessageData[] = [
     transactionAmount: 0.5,
     senderAvatar: '/placeholder.svg',
     senderName: 'Alex',
+    senderId: '1',
   },
   {
     id: '6',
@@ -267,6 +270,10 @@ const ChatConversationPage: React.FC = () => {
     });
   };
 
+  const handleContactProfileClick = () => {
+    navigate(`/profile/friend/${chatId}`);
+  };
+
   return (
     <MobileLayout hideNavigation>
       <div className="flex flex-col h-full">
@@ -281,12 +288,18 @@ const ChatConversationPage: React.FC = () => {
               <ArrowLeft size={20} />
             </Button>
             
-            <Avatar className="h-9 w-9 mr-3">
+            <Avatar 
+              className="h-9 w-9 mr-3 cursor-pointer"
+              onClick={handleContactProfileClick}
+            >
               <AvatarImage src="/placeholder.svg" />
               <AvatarFallback>AL</AvatarFallback>
             </Avatar>
             
-            <div className="flex-1">
+            <div 
+              className="flex-1 cursor-pointer"
+              onClick={handleContactProfileClick}
+            >
               <h2 className="font-semibold">Alex Web3</h2>
               <div className="flex items-center">
                 <span className={cn(
@@ -304,7 +317,7 @@ const ChatConversationPage: React.FC = () => {
                 variant="ghost" 
                 size="icon" 
                 className="text-gray-400"
-                onClick={handleVideoCall}
+                onClick={() => toast.info("Video call")}
               >
                 <Camera size={20} />
               </Button>
@@ -323,6 +336,7 @@ const ChatConversationPage: React.FC = () => {
               type={msg.type}
               senderAvatar={msg.senderAvatar}
               senderName={msg.senderName}
+              senderId={msg.senderId || chatId}
               transactionAmount={msg.transactionAmount}
             />
           ))}

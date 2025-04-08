@@ -12,6 +12,7 @@ import ChatConversationPage from "./pages/ChatConversationPage";
 import StoriesPage from "./pages/StoriesPage";
 import PumpPage from "./pages/PumpPage";
 import ProfilePage from "./pages/ProfilePage";
+import FriendProfilePage from "./pages/FriendProfilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/pump" element={<PumpPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<EditProfilePage />} />
+            <Route path="/profile/friend/:friendId" element={<FriendProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
