@@ -67,14 +67,14 @@ const EditProfilePage = () => {
         {/* Profile Picture */}
         <div className="p-6 flex justify-center">
           <div className="relative">
-            <Avatar className="h-24 w-24 border-2 border-snap-yellow">
+            <Avatar className="h-24 w-24 border-2 border-solana-purple">
               <AvatarImage src={profileData.avatar} />
               <AvatarFallback>{profileData.name.substring(0, 2)}</AvatarFallback>
             </Avatar>
             <Button
               variant="ghost"
               size="icon"
-              className="absolute bottom-0 right-0 bg-snap-yellow text-black rounded-full h-8 w-8"
+              className="absolute bottom-0 right-0 bg-solana-purple text-white rounded-full h-8 w-8"
               onClick={() => setShowImagePicker(true)}
             >
               <Camera size={16} />
@@ -89,7 +89,7 @@ const EditProfilePage = () => {
             <Input 
               value={profileData.name}
               onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
-              className="bg-gray-800 border-gray-700"
+              className="bg-gray-800/50 border-gray-700"
             />
           </div>
           
@@ -98,7 +98,7 @@ const EditProfilePage = () => {
             <Input 
               value={profileData.username}
               onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
-              className="bg-gray-800 border-gray-700"
+              className="bg-gray-800/50 border-gray-700"
             />
           </div>
           
@@ -107,13 +107,13 @@ const EditProfilePage = () => {
             <textarea 
               value={profileData.bio}
               onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
-              className="w-full h-24 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-snap-yellow"
+              className="w-full h-24 px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-solana-purple"
             />
           </div>
           
           <Button 
             onClick={handleSave}
-            className="w-full bg-snap-yellow text-black hover:bg-snap-yellow/90"
+            className="w-full bg-solana-purple text-white hover:bg-solana-purple/90"
           >
             Save Changes
           </Button>
@@ -121,7 +121,7 @@ const EditProfilePage = () => {
         
         {/* Profile Picture Picker Dialog */}
         <Dialog open={showImagePicker} onOpenChange={setShowImagePicker}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md bg-snap-dark border-white/10">
             <DialogHeader>
               <DialogTitle>Choose Profile Picture</DialogTitle>
             </DialogHeader>

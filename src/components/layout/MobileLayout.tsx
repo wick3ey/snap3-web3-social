@@ -45,7 +45,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       </main>
       
       {!hideNavigation && (
-        <nav className="mt-auto w-full glass-morphism h-16 flex items-center justify-around">
+        <nav className="mt-auto w-full glass-morphism h-16 flex items-center justify-around bg-gray-900/50">
           {navItems.map((item) => {
             const isActive = getIsActive(item.path);
             const IconComponent = item.icon;
@@ -56,7 +56,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
                 to={item.path}
                 className={cn(
                   "flex flex-col items-center justify-center py-1 px-3", 
-                  isActive ? "text-solana-green" : "text-gray-400 hover:text-gray-300"
+                  isActive ? "text-solana-purple" : "text-gray-400 hover:text-gray-300"
                 )}
               >
                 <IconComponent 

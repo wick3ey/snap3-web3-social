@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, Filter, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -181,7 +182,7 @@ const StoriesPage = () => {
   return (
     <MobileLayout>
       <div className="flex flex-col h-full">
-        <div className="p-4 glass-morphism sticky top-0 z-10">
+        <div className="p-4 glass-morphism sticky top-0 z-10 bg-gray-900/50">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold">Stories</h1>
             <div className="flex gap-2">
@@ -195,7 +196,7 @@ const StoriesPage = () => {
               </Button>
               <Button 
                 size="icon" 
-                className="rounded-full bg-snap-yellow text-black"
+                className="rounded-full bg-solana-purple text-white"
                 onClick={handleCreateStory}
               >
                 <Plus size={18} />
@@ -206,7 +207,7 @@ const StoriesPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <Input 
               placeholder="Search stories" 
-              className="pl-9 bg-white/5 border-none rounded-full"
+              className="pl-9 bg-gray-800/40 border-gray-700/50 rounded-full"
               value={searchQuery}
               onChange={handleSearch}
             />
@@ -238,7 +239,7 @@ const StoriesPage = () => {
               {discoverContent.map((item) => (
                 <div 
                   key={item.id} 
-                  className="snap-card overflow-hidden cursor-pointer"
+                  className="neo-blur rounded-2xl overflow-hidden cursor-pointer bg-gray-800/30"
                   onClick={() => handleDiscoverItemClick(item.link)}
                 >
                   <div className="relative aspect-video">
@@ -252,7 +253,7 @@ const StoriesPage = () => {
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-xs font-medium">{item.publisher}</span>
                           {item.isVerified && (
-                            <div className="bg-snap-yellow text-black text-[10px] font-bold px-1 py-0.5 rounded-full">
+                            <div className="bg-solana-purple text-white text-[10px] font-bold px-1 py-0.5 rounded-full">
                               ✓
                             </div>
                           )}
@@ -273,7 +274,7 @@ const StoriesPage = () => {
               {[1, 2, 3, 4].map((item) => (
                 <div 
                   key={item} 
-                  className="snap-card overflow-hidden cursor-pointer"
+                  className="neo-blur rounded-xl overflow-hidden cursor-pointer bg-gray-800/30"
                   onClick={() => toast.info(`Trending story #${item} opened`)}
                 >
                   <div className="aspect-square relative">

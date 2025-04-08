@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, Camera, Wallet, LogOut, Copy, Bell, Shield, Moon, CircleHelp, Gift, Pencil } from 'lucide-react';
@@ -120,14 +121,14 @@ const ProfilePage = () => {
         <div className="px-4 py-2">
           <div className="flex items-start">
             <div className="relative">
-              <Avatar className="h-20 w-20 border-2 border-snap-yellow">
+              <Avatar className="h-20 w-20 border-2 border-solana-purple">
                 <AvatarImage src={user.avatar} />
                 <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
               </Avatar>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute bottom-0 right-0 bg-snap-yellow text-black rounded-full h-6 w-6"
+                className="absolute bottom-0 right-0 bg-solana-purple text-white rounded-full h-6 w-6"
                 onClick={handleChangeProfilePicture}
               >
                 <Camera size={14} />
@@ -138,7 +139,7 @@ const ProfilePage = () => {
               <div className="flex items-center">
                 <h2 className="text-lg font-bold">{user.name}</h2>
                 {user.verified && (
-                  <div className="ml-1.5 bg-snap-yellow text-black text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  <div className="ml-1.5 bg-solana-purple text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                     ✓
                   </div>
                 )}
@@ -203,7 +204,7 @@ const ProfilePage = () => {
             <h3 className="text-lg font-semibold">NFT Collection</h3>
             <Button 
               variant="link" 
-              className="h-auto p-0 text-sm text-snap-yellow"
+              className="h-auto p-0 text-sm text-solana-purple"
               onClick={() => toast.info("Viewing all NFTs")}
             >
               View All
@@ -234,7 +235,7 @@ const ProfilePage = () => {
 
         {/* Settings Sheet */}
         <Sheet open={showSettings} onOpenChange={setShowSettings}>
-          <SheetContent className="w-[85%] sm:max-w-md">
+          <SheetContent className="w-[85%] sm:max-w-md bg-snap-dark border-white/10">
             <div className="py-4">
               <h2 className="text-xl font-bold mb-4">Settings</h2>
               
@@ -341,7 +342,7 @@ const ProfilePage = () => {
 
         {/* Profile Picture Picker Dialog */}
         <Dialog open={showImagePicker} onOpenChange={setShowImagePicker}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md bg-snap-dark border-white/10">
             <DialogHeader>
               <DialogTitle>Choose Profile Picture</DialogTitle>
             </DialogHeader>

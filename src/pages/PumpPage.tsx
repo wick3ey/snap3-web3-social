@@ -234,9 +234,9 @@ const PumpPage = () => {
         
         {/* Trending List */}
         <div className="relative -mt-10 mx-4 z-10">
-          <div className="neo-blur rounded-2xl p-4">
+          <div className="neo-blur rounded-2xl p-4 bg-gray-900/50">
             <div className="flex items-center mb-4">
-              <TrendingUp size={20} className="text-solana-green mr-2" />
+              <TrendingUp size={20} className="text-solana-purple mr-2" />
               <h2 className="text-lg font-semibold">Top 10 Trending</h2>
             </div>
             
@@ -245,7 +245,7 @@ const PumpPage = () => {
                 {filteredTokens.map((token) => (
                   <div 
                     key={token.id} 
-                    className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-colors cursor-pointer"
                     onClick={() => handleTokenClick(token.id)}
                   >
                     <div className="flex items-center">
@@ -256,7 +256,7 @@ const PumpPage = () => {
                       <div>
                         <div className="flex items-center">
                           <h3 className="font-medium">{token.name}</h3>
-                          <span className="ml-2 text-xs px-2 py-0.5 bg-white/10 rounded-full">
+                          <span className="ml-2 text-xs px-2 py-0.5 bg-gray-700/70 rounded-full">
                             {token.symbol}
                           </span>
                         </div>
@@ -286,7 +286,7 @@ const PumpPage = () => {
           setShowCreateDialog(open);
           if (!open) resetCreateForm();
         }}>
-          <DialogContent className="sm:max-w-md bg-gradient-to-b from-background to-black/70 backdrop-blur-lg border-solana-purple/20">
+          <DialogContent className="sm:max-w-md bg-gradient-to-b from-gray-900 to-black/90 backdrop-blur-lg border-solana-purple/20">
             <DialogHeader>
               <DialogTitle className="text-center text-xl font-bold bg-gradient-to-r from-solana-purple to-solana-blue bg-clip-text text-transparent">
                 Create New Meme Token
@@ -328,33 +328,33 @@ const PumpPage = () => {
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/80">Token Name*</label>
+                <label className="text-sm font-medium text-white/80">Token Name*</label>
                 <Input 
                   value={newToken.name}
                   onChange={(e) => setNewToken({...newToken, name: e.target.value})}
                   placeholder="e.g. Super Doge"
-                  className="bg-background/40 border-white/10 focus-visible:ring-solana-purple"
+                  className="bg-gray-800/40 border-white/10 focus-visible:ring-solana-purple"
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/80">Token Symbol*</label>
+                <label className="text-sm font-medium text-white/80">Token Symbol*</label>
                 <Input 
                   value={newToken.symbol}
                   onChange={(e) => setNewToken({...newToken, symbol: e.target.value.toUpperCase()})}
                   placeholder="e.g. SDOGE"
-                  className="bg-background/40 border-white/10 uppercase focus-visible:ring-solana-purple"
+                  className="bg-gray-800/40 border-white/10 uppercase focus-visible:ring-solana-purple"
                   maxLength={6}
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/80">Description</label>
+                <label className="text-sm font-medium text-white/80">Description</label>
                 <Textarea 
                   value={newToken.description}
                   onChange={(e) => setNewToken({...newToken, description: e.target.value})}
                   placeholder="What makes your token special?"
-                  className="bg-background/40 border-white/10 h-20 focus-visible:ring-solana-purple"
+                  className="bg-gray-800/40 border-white/10 h-20 focus-visible:ring-solana-purple"
                 />
               </div>
             </div>
@@ -382,7 +382,7 @@ const PumpPage = () => {
         {/* Token Details Sheet */}
         {showDetails && (
           <Sheet open={!!showDetails} onOpenChange={() => setShowDetails(null)}>
-            <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh] bg-gradient-to-b from-background to-black/70 backdrop-blur-lg border-t border-solana-purple/20">
+            <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh] bg-gradient-to-b from-gray-900 to-black/90 backdrop-blur-lg border-t border-solana-purple/20">
               {(() => {
                 const token = trendingTokens.find(t => t.id === showDetails);
                 if (!token) return null;
@@ -405,7 +405,7 @@ const PumpPage = () => {
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center p-4 rounded-xl neo-blur mb-4">
+                    <div className="flex justify-between items-center p-4 rounded-xl neo-blur mb-4 bg-gray-800/30">
                       <div>
                         <p className="text-sm text-gray-400">Current Price</p>
                         <p className="text-2xl font-bold">${token.price.toFixed(token.price < 0.001 ? 7 : 4)}</p>
@@ -437,7 +437,7 @@ const PumpPage = () => {
                     <div className="space-y-4">
                       <div>
                         <h3 className="font-medium mb-2 flex items-center">
-                          <Star size={16} className="mr-2 text-solana-green" />
+                          <Star size={16} className="mr-2 text-solana-purple" />
                           About {token.name}
                         </h3>
                         <p className="text-sm text-gray-400">
@@ -447,7 +447,7 @@ const PumpPage = () => {
                       
                       <div>
                         <h3 className="font-medium mb-2 flex items-center">
-                          <Zap size={16} className="mr-2 text-solana-green" />
+                          <Zap size={16} className="mr-2 text-solana-purple" />
                           Token Info
                         </h3>
                         <div className="space-y-2">
