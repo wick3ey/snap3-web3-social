@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WalletConnectButton from '@/components/auth/WalletConnectButton';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 const OnboardingPage = () => {
   const navigate = useNavigate();

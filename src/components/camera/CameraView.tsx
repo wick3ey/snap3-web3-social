@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Camera, FlipCameraIcon, Sparkles, Timer, X, Send, Download, User, Sticker, Text, FileImage, PencilLine } from 'lucide-react';
+import { Camera, CameraIcon, Sparkles, Timer, X, Send, Download, User, Sticker, Text, FileImage, PencilLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const CameraView: React.FC = () => {
@@ -75,7 +75,7 @@ const CameraView: React.FC = () => {
           </Button>
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" className="rounded-full bg-black/20 text-white">
-              <FlipCameraIcon size={18} />
+              <CameraIcon size={18} />
             </Button>
             <Button variant="ghost" size="icon" className="rounded-full bg-black/20 text-white">
               <Timer size={18} />
