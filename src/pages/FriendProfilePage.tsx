@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, Share2, MessageSquare, Shield, User, UserPlus, UserMinus, 
-  TrendingUp, Globe, Link, Users, Wallet, Star, Clock, Gift, ChevronRight
+  Globe, Link, Users, Wallet, Star, Clock, ChevronRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MobileLayout from '@/components/layout/MobileLayout';
@@ -31,7 +30,6 @@ interface FriendData {
   isOnline: boolean;
   isFollowing: boolean;
   verified: boolean;
-  level: number;
   location: string;
   website: string;
   joinedDate: string;
@@ -65,7 +63,6 @@ const FriendProfilePage = () => {
         isOnline: true,
         isFollowing: false,
         verified: true,
-        level: 12,
         location: 'Singapore',
         website: 'https://alexweb3.dev',
         joinedDate: 'January 2022',
@@ -317,7 +314,6 @@ const FriendProfilePage = () => {
                 followersCount={friendData.followersCount}
                 followingCount={friendData.followingCount}
                 nftCount={friendData.nftCount}
-                level={friendData.level}
               />
             </motion.div>
 
@@ -436,23 +432,6 @@ const FriendProfilePage = () => {
                   </motion.div>
                 )}
               </Card>
-            </motion.div>
-
-            {/* Gift Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.3 }}
-              className="mt-4"
-            >
-              <Button 
-                variant="outline" 
-                className="w-full border-white/10 bg-white/5 hover:bg-white/10"
-                onClick={handleSendGift}
-              >
-                <Gift size={16} className="mr-2 text-solana-purple" />
-                Send a Gift
-              </Button>
             </motion.div>
 
             {/* Tab Section */}
