@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Filter, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -151,8 +150,7 @@ const StoriesPage = () => {
   };
 
   const handleFilter = () => {
-    toast("Filtering options", {
-      description: "You can filter by verified accounts, NFTs, or recent stories",
+    toast.info("Filtering options", {
       action: {
         label: "Apply",
         onClick: () => {

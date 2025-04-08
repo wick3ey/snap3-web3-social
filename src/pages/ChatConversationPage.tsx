@@ -1,14 +1,15 @@
-
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Camera, ArrowLeft, Paperclip, Send, Smile, Plus, CreditCard, Image, Mic, X, FileImage } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft, MoreVertical, Send, Camera, 
+  X as XIcon, Smile, Paperclip, Mic, 
+  Image as ImageIcon, FileImage as FileImageIcon
+} from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ChatMessage from '@/components/chat/ChatMessage';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
-import TokenTransactionModal from '@/components/chat/TokenTransactionModal';
 import { toast } from 'sonner';
 
 interface ChatMessageData {
@@ -96,11 +97,9 @@ const ChatConversationPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Simulate typing indicator
   useEffect(() => {
     if (isOnline) {
       const typingTimeout = setTimeout(() => {
-        // Simulate the other person typing and sending a message after a delay
         const simulatedResponse: ChatMessageData = {
           id: Date.now().toString(),
           content: 'By the way, have you seen the latest Solana updates?',
@@ -113,7 +112,7 @@ const ChatConversationPage: React.FC = () => {
         };
         
         setMessages(prev => [...prev, simulatedResponse]);
-      }, 30000); // 30 seconds delay
+      }, 30000);
       
       return () => clearTimeout(typingTimeout);
     }
@@ -133,7 +132,6 @@ const ChatConversationPage: React.FC = () => {
       setMessages([...messages, newMessage]);
       setMessage('');
       
-      // Simulate message delivery status change
       setTimeout(() => {
         setMessages(prev => 
           prev.map(msg => 
@@ -143,7 +141,6 @@ const ChatConversationPage: React.FC = () => {
           )
         );
         
-        // Simulate read receipt after a delay
         setTimeout(() => {
           setMessages(prev => 
             prev.map(msg => 
@@ -178,9 +175,7 @@ const ChatConversationPage: React.FC = () => {
     setMessages([...messages, newMessage]);
     setShowTransactionModal(false);
     
-    // Simulate transaction confirmation
     setTimeout(() => {
-      // Add a response from the other person
       const responseMessage: ChatMessageData = {
         id: (Date.now() + 1).toString(),
         content: `Thank you for sending ${amount} SOL!`,
@@ -197,11 +192,9 @@ const ChatConversationPage: React.FC = () => {
   };
 
   const handleSendImage = () => {
-    // In a real app, this would open the image picker
     toast.info("Opening image selector");
     setShowAttachmentOptions(false);
     
-    // Simulate sending an image
     setTimeout(() => {
       const imageMessage: ChatMessageData = {
         id: Date.now().toString(),
@@ -217,7 +210,6 @@ const ChatConversationPage: React.FC = () => {
   };
 
   const handleOpenCamera = () => {
-    // Navigate to camera page
     navigate('/camera');
     setShowAttachmentOptions(false);
   };
@@ -226,7 +218,6 @@ const ChatConversationPage: React.FC = () => {
     setIsRecording(true);
     toast.info("Recording audio...");
     
-    // Simulate audio recording
     setTimeout(() => {
       setIsRecording(false);
       toast.success("Audio message sent");
@@ -255,6 +246,17 @@ const ChatConversationPage: React.FC = () => {
       action: {
         label: "Cancel",
         onClick: () => toast.error("Call canceled"),
+      },
+    });
+  };
+
+  const handleTokenTransfer = () => {
+    toast.info("Send SOL to this contact", {
+      action: {
+        label: "Send",
+        onClick: () => {
+          toast.success(`${amount} SOL sent to ${contact.name}`);
+        },
       },
     });
   };
@@ -369,7 +371,7 @@ const ChatConversationPage: React.FC = () => {
               {message.trim() ? (
                 <Send size={20} className="text-snap-yellow" />
               ) : isRecording ? (
-                <X size={20} className="text-red-500" />
+                <XIcon size={20} className="text-red-500" />
               ) : (
                 <Mic size={20} />
               )}
@@ -384,7 +386,7 @@ const ChatConversationPage: React.FC = () => {
                   onClick={handleSendImage}
                 >
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <Image size={24} className="text-purple-400" />
+                    <ImageIcon size={24} className="text-purple-400" />
                   </div>
                   <span className="text-xs text-gray-400">Gallery</span>
                 </button>
@@ -402,7 +404,7 @@ const ChatConversationPage: React.FC = () => {
                   onClick={() => toast.info("Opening NFT Selector")}
                 >
                   <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <FileImage size={24} className="text-green-400" />
+                    <FileImageIcon size={24} className="text-green-400" />
                   </div>
                   <span className="text-xs text-gray-400">NFT</span>
                 </button>

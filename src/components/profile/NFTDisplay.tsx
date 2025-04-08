@@ -2,7 +2,7 @@
 import React from 'react';
 import { ImageIcon } from 'lucide-react';
 
-interface NFT {
+export interface NFT {
   id: string;
   name: string;
   image: string;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, Camera, Wallet, LogOut, Copy, Bell, Shield, Moon, CircleHelp, Gift, Pencil } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import WalletCard from '@/components/profile/WalletCard';
 import NFTDisplay from '@/components/profile/NFTDisplay';
+import SingleNFTDisplay from '@/components/profile/SingleNFTDisplay';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 
@@ -43,8 +43,7 @@ const ProfilePage = () => {
   };
 
   const handleChangeProfilePicture = () => {
-    toast({
-      description: "Choose a new profile picture",
+    toast.info("Choose a new profile picture", {
       action: {
         label: "Select",
         onClick: () => {
@@ -55,8 +54,7 @@ const ProfilePage = () => {
   };
 
   const handleEditProfile = () => {
-    toast({
-      description: "Edit your profile details",
+    toast.info("Edit your profile details", {
       action: {
         label: "Edit",
         onClick: () => {
@@ -67,8 +65,7 @@ const ProfilePage = () => {
   };
 
   const handleVerifyProfile = () => {
-    toast({
-      description: "Verify your profile with Solana",
+    toast.info("Verify your profile with Solana", {
       action: {
         label: "Verify",
         onClick: () => {
@@ -79,8 +76,7 @@ const ProfilePage = () => {
   };
 
   const handleRequestVerification = () => {
-    toast({
-      description: "Request verified status for your account",
+    toast.info("Request verified status for your account", {
       action: {
         label: "Request",
         onClick: () => {
@@ -91,8 +87,7 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
-    toast({
-      description: "Are you sure you want to log out?",
+    toast.info("Are you sure you want to log out?", {
       action: {
         label: "Log Out",
         onClick: () => {
@@ -213,19 +208,19 @@ const ProfilePage = () => {
           </div>
           
           <div className="grid grid-cols-3 gap-2">
-            <NFTDisplay 
+            <SingleNFTDisplay 
               image="/placeholder.svg" 
               name="BAYC #3429"
               collectionName="Bored Ape YC"
               onClick={() => toast.info("Viewing NFT details")}
             />
-            <NFTDisplay 
+            <SingleNFTDisplay 
               image="/placeholder.svg" 
               name="Degen #892"
               collectionName="DegenApes"
               onClick={() => toast.info("Viewing NFT details")}
             />
-            <NFTDisplay 
+            <SingleNFTDisplay 
               image="/placeholder.svg" 
               name="SMB #1432"
               collectionName="Solana Monkeys"

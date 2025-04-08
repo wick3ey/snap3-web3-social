@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -44,7 +43,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
   const totalItems = story?.items.length || 0;
 
   useEffect(() => {
-    // Reset progress and item index when story changes
     setCurrentItemIndex(0);
     setProgress(0);
     
@@ -56,7 +54,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
   }, [currentStoryIndex]);
 
   useEffect(() => {
-    // Reset progress when item changes
     setProgress(0);
     
     if (progressIntervalRef.current) {
@@ -103,7 +100,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
       setCurrentStoryIndex(currentStoryIndex + 1);
       setCurrentItemIndex(0);
     } else {
-      // End of all stories
       onClose();
     }
   };
@@ -135,12 +131,9 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
   };
 
   const handleMore = () => {
-    toast({
-      description: "Report, download or save story",
-    });
+    toast.info("Report, download or save story");
   };
 
-  // Handle clicks for navigation
   const handleLeftSideClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     goToPreviousItem();
@@ -153,13 +146,11 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
 
   const handleFirstStoryYourStory = () => {
     if (currentStoryIndex === 0 && story.name === 'Your Story') {
-      toast({
-        description: "You can create a new story here",
+      toast.info("You can create a new story here", {
         action: {
           label: "Create",
           onClick: () => {
             onClose();
-            // This would navigate to camera in a real app
             toast.success("Opening camera for story creation");
           },
         },
@@ -175,7 +166,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      {/* Progress bars */}
       <div className="absolute top-0 left-0 right-0 z-20 p-2 flex gap-1">
         {story.items.map((item, idx) => (
           <Progress 
@@ -187,7 +177,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
         ))}
       </div>
       
-      {/* Header */}
       <div className="p-4 z-20 flex items-center justify-between">
         <div className="flex items-center">
           <Avatar className="h-9 w-9 mr-3 border border-white/20">
@@ -204,24 +193,20 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
         </Button>
       </div>
       
-      {/* Story content */}
       <div 
         className="relative flex-1 flex items-center justify-center"
         onClick={() => isPaused ? handleResume() : handlePause()}
       >
-        {/* Left click area for previous */}
         <div 
           className="absolute left-0 top-0 bottom-0 w-1/3 z-10"
           onClick={handleLeftSideClick}
         />
         
-        {/* Right click area for next */}
         <div 
           className="absolute right-0 top-0 bottom-0 w-1/3 z-10"
           onClick={handleRightSideClick}
         />
         
-        {/* Story image or video */}
         <div className="w-full h-full">
           {storyItem.type === 'image' ? (
             <>
@@ -247,7 +232,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
           )}
         </div>
         
-        {/* Navigation buttons - visible on pause */}
         {isPaused && (
           <>
             <Button 
@@ -276,7 +260,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialStoryIndex, o
         )}
       </div>
       
-      {/* Action bar */}
       <div className="p-4 glass-morphism z-20">
         <div className="flex items-center gap-2 mb-3">
           <Button variant="ghost" size="sm" className="text-white p-2" onClick={handleLike}>

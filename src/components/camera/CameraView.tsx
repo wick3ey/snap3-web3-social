@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Camera, CameraIcon, Sparkles, Timer, X, Send, 
@@ -88,8 +87,7 @@ const CameraView: React.FC<CameraViewProps> = ({
         if (onCapture) onCapture(capturedImage);
       } else {
         // Show send options
-        toast({
-          description: "Choose who to send this to",
+        toast.info("Choose who to send this to", {
           action: {
             label: "Send",
             onClick: () => toast.info("Opening contacts selector"),
@@ -112,7 +110,6 @@ const CameraView: React.FC<CameraViewProps> = ({
     toast.info(`Flash: ${modes[nextIndex]}`);
   };
 
-  // Effect to handle back button/escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

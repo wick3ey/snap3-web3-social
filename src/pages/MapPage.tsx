@@ -1,30 +1,8 @@
-
-import React, { useState } from 'react';
-import { MapPin, Search, ChevronDown, User, Settings, Layers, ZoomIn, ZoomOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 
-// Dummy user location data
-const nearbyUsers = [
-  { id: '1', name: 'Alex', avatar: '/placeholder.svg', distance: '0.5 miles', isOnline: true },
-  { id: '2', name: 'Sarah', avatar: '/placeholder.svg', distance: '1.2 miles', isOnline: true },
-  { id: '3', name: 'Mike', avatar: '/placeholder.svg', distance: '2.7 miles', isOnline: false },
-  { id: '4', name: 'Taylor', avatar: '/placeholder.svg', distance: '3.1 miles', isOnline: true },
-];
-
-// Dummy trending locations
-const trendingLocations = [
-  { id: '1', name: 'Web3 Conference', address: 'Convention Center', attendees: 230 },
-  { id: '2', name: 'NFT Gallery', address: 'Downtown Art District', attendees: 158 },
-  { id: '3', name: 'Solana Hackathon', address: 'TechHub Building', attendees: 75 },
-];
-
-const MapPage: React.FC = () => {
+const MapPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNearby, setShowNearby] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -93,6 +71,15 @@ const MapPage: React.FC = () => {
 
   const handleLocationClick = (locationId: string) => {
     toast.info("Showing location details");
+  };
+
+  const handleLocationPermission = () => {
+    toast.info("Location permission required", {
+      action: {
+        label: "Allow",
+        onClick: () => toast.success("Location access granted"),
+      },
+    });
   };
 
   return (
