@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Save, X, AtSign, User, FileText, Link } from 'lucide-react';
+import { Camera, Save, X, AtSign, User, FileText, Link, Globe } from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,6 @@ const EditProfilePage = () => {
   const navigate = useNavigate();
   const [showImagePicker, setShowImagePicker] = useState(false);
   
-  // Dummy user data - this would typically come from a state management system or API
   const [profileData, setProfileData] = useState({
     name: 'Jane Doe',
     username: 'jane_web3',
@@ -25,7 +23,6 @@ const EditProfilePage = () => {
     location: 'San Francisco, CA',
   });
   
-  // Sample avatar options - in a real app, these might come from an API or user uploads
   const avatarOptions = [
     '/placeholder.svg',
     'https://source.unsplash.com/random/200x200?face-1',
@@ -35,7 +32,6 @@ const EditProfilePage = () => {
   ];
   
   const handleSave = () => {
-    // In a real app, this would send the data to an API
     toast.success('Profile updated successfully');
     navigate('/profile');
   };
@@ -49,7 +45,6 @@ const EditProfilePage = () => {
   return (
     <MobileLayout>
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-snap-dark to-black">
-        {/* Header */}
         <div className="p-4 flex justify-between items-center sticky top-0 z-10 bg-snap-dark/80 backdrop-blur-lg border-b border-white/5">
           <Button 
             variant="ghost" 
@@ -71,7 +66,6 @@ const EditProfilePage = () => {
         </div>
         
         <div className="flex-1 overflow-auto pb-20">
-          {/* Profile Picture */}
           <div className="p-6 flex justify-center">
             <div className="relative">
               <Avatar className="h-28 w-28 border-2 border-solana-purple shadow-lg shadow-solana-purple/20">
@@ -89,7 +83,6 @@ const EditProfilePage = () => {
             </div>
           </div>
           
-          {/* Profile Form */}
           <div className="px-4 py-2 space-y-5">
             <Card className="p-4 bg-white/5 border border-white/10">
               <div className="flex items-start mb-4">
@@ -184,7 +177,6 @@ const EditProfilePage = () => {
           </div>
         </div>
         
-        {/* Profile Picture Picker Dialog */}
         <Dialog open={showImagePicker} onOpenChange={setShowImagePicker}>
           <DialogContent className="sm:max-w-md bg-snap-dark border-white/10">
             <DialogHeader>
