@@ -10,7 +10,7 @@ import CameraPage from "./pages/CameraPage";
 import ChatPage from "./pages/ChatPage";
 import ChatConversationPage from "./pages/ChatConversationPage";
 import StoriesPage from "./pages/StoriesPage";
-import MapPage from "./pages/MapPage";
+import PumpPage from "./pages/PumpPage";
 import ProfilePage from "./pages/ProfilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import NotFound from "./pages/NotFound";
@@ -30,7 +30,7 @@ const App = () => (
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:chatId" element={<ChatConversationPage />} />
           <Route path="/stories" element={<StoriesPage />} />
-          <Route path="/map" element={<MapPage />} />
+          <Route path="/pump" element={<PumpPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/edit" element={<EditProfilePage />} />
           <Route path="*" element={<NotFound />} />

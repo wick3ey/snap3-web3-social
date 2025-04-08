@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Camera, Users, PlayCircle, MessageCircle, User } from 'lucide-react';
+import { Camera, TrendingUp, PlayCircle, MessageCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MobileLayoutProps {
@@ -19,7 +19,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   const currentPath = location.pathname;
 
   const navItems = [
-    { path: '/map', icon: Users, label: 'Map' },
+    { path: '/pump', icon: TrendingUp, label: 'Pump' },
     { path: '/stories', icon: PlayCircle, label: 'Stories' },
     { path: '/', icon: Camera, label: 'Camera' },
     { path: '/chat', icon: MessageCircle, label: 'Chat' },
