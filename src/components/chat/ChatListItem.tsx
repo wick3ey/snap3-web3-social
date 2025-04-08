@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ChatListItemProps {
   name: string;
@@ -34,9 +35,15 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       <div className="relative">
         <div className={cn(
           "w-12 h-12 rounded-full overflow-hidden",
-          hasStory ? "border-2 border-snap-purple p-0.5" : ""
+          hasStory ? "border-2 border-solana-purple p-0.5" : ""
         )}>
-          <img src={avatar} alt={name} className="w-full h-full object-cover rounded-full" />
+          <Avatar className="w-full h-full">
+            <AvatarImage src={avatar} alt={name} className="object-cover" />
+            <AvatarFallback className="bg-solana-purple/20 text-solana-purple">
+              {name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          
           {hasNFTAvatar && (
             <div className="absolute -top-1 -right-1 w-5 h-5 bg-solana-purple rounded-full flex items-center justify-center">
               <span className="text-white text-[8px] font-bold">NFT</span>
@@ -44,7 +51,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
           )}
         </div>
         {isOnline && (
-          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border border-snap-dark"></div>
+          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-snap-dark shadow-lg"></div>
         )}
       </div>
       
@@ -52,21 +59,23 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
         <div className="flex justify-between items-center">
           <h3 className={cn(
             "font-medium truncate",
-            unreadCount > 0 ? "font-semibold" : ""
+            unreadCount > 0 ? "font-semibold text-white" : "text-gray-200"
           )}>{name}</h3>
           <span className={cn(
-            "text-xs text-gray-400",
-            unreadCount > 0 ? "text-solana-purple font-medium" : ""
+            "text-xs",
+            unreadCount > 0 ? "text-solana-purple font-medium" : "text-gray-400"
           )}>{time}</span>
         </div>
         <p className={cn(
-          "text-sm text-gray-400 truncate",
-          unreadCount > 0 ? "text-gray-200 font-medium" : ""
+          "text-sm truncate",
+          unreadCount > 0 ? "text-gray-200 font-medium" : "text-gray-400"
         )}>{lastMessage}</p>
       </div>
       
       {unreadCount > 0 && (
-        <Badge className="rounded-full bg-solana-purple text-white ml-1">{unreadCount}</Badge>
+        <Badge className="rounded-full bg-solana-purple text-white ml-1 min-w-[1.5rem] flex items-center justify-center">
+          {unreadCount}
+        </Badge>
       )}
     </div>
   );
