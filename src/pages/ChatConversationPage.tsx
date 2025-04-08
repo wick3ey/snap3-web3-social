@@ -23,7 +23,7 @@ const dummyMessages = [
   },
   {
     id: '2',
-    content: 'I'm doing well, thanks! Just checked out that new NFT collection you mentioned.',
+    content: "I'm doing well, thanks! Just checked out that new NFT collection you mentioned.",
     isOwn: true,
     timestamp: '10:32 AM',
     status: 'read' as const,
