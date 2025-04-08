@@ -8,14 +8,16 @@ import WalletCard from '@/components/profile/WalletCard';
 import NFTDisplay from '@/components/profile/NFTDisplay';
 import SingleNFTDisplay from '@/components/profile/SingleNFTDisplay';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   // Dummy user data
-  const user = {
+  const [user, setUser] = useState({
     name: 'Jane Doe',
     username: 'jane_web3',
     avatar: '/placeholder.svg',
@@ -24,7 +26,16 @@ const ProfilePage = () => {
     followersCount: 1258,
     followingCount: 432,
     verified: true,
-  };
+  });
+
+  // Sample avatar options - in a real app, these might come from an API or user uploads
+  const avatarOptions = [
+    '/placeholder.svg',
+    'https://source.unsplash.com/random/200x200?face-1',
+    'https://source.unsplash.com/random/200x200?face-2',
+    'https://source.unsplash.com/random/200x200?face-3',
+    'https://source.unsplash.com/random/200x200?face-4',
+  ];
 
   // Dummy wallet data
   const wallet = {
@@ -43,25 +54,17 @@ const ProfilePage = () => {
   };
 
   const handleChangeProfilePicture = () => {
-    toast.info("Choose a new profile picture", {
-      action: {
-        label: "Select",
-        onClick: () => {
-          toast.info("Image selection would open here");
-        },
-      },
-    });
+    setShowImagePicker(true);
+  };
+
+  const handleSelectAvatar = (avatar: string) => {
+    setUser(prev => ({ ...prev, avatar }));
+    setShowImagePicker(false);
+    toast.success('Profile picture updated');
   };
 
   const handleEditProfile = () => {
-    toast.info("Edit your profile details", {
-      action: {
-        label: "Edit",
-        onClick: () => {
-          toast.info("Profile editor would open here");
-        },
-      },
-    });
+    navigate('/profile/edit');
   };
 
   const handleVerifyProfile = () => {
@@ -92,7 +95,7 @@ const ProfilePage = () => {
         label: "Log Out",
         onClick: () => {
           toast.success("You have been logged out");
-          navigate("/"); // Navigate to login page in a real app
+          navigate("/");
         },
       },
     });
@@ -335,6 +338,29 @@ const ProfilePage = () => {
             </div>
           </SheetContent>
         </Sheet>
+
+        {/* Profile Picture Picker Dialog */}
+        <Dialog open={showImagePicker} onOpenChange={setShowImagePicker}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Choose Profile Picture</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-2 py-4">
+              {avatarOptions.map((avatar, index) => (
+                <div 
+                  key={index} 
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => handleSelectAvatar(avatar)}
+                >
+                  <Avatar className="h-20 w-20 mx-auto">
+                    <AvatarImage src={avatar} />
+                    <AvatarFallback>IMG</AvatarFallback>
+                  </Avatar>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </MobileLayout>
   );
