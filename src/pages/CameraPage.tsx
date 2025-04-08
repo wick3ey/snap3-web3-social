@@ -25,8 +25,7 @@ const CameraPage = () => {
       navigate('/stories');
     } else {
       // Regular camera mode
-      toast({
-        content: "Choose who to send this to",
+      toast("Choose who to send this to", {
         action: {
           label: "Send",
           onClick: () => navigate('/chat'),

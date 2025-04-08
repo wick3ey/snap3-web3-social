@@ -143,7 +143,7 @@ const MapPage = () => {
   };
 
   const handleLocationPermission = () => {
-    toast.info("Location permission required", {
+    toast("Location permission required", {
       action: {
         label: "Allow",
         onClick: () => toast.success("Location access granted"),

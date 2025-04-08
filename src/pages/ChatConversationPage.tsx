@@ -244,8 +244,7 @@ const ChatConversationPage: React.FC = () => {
   };
 
   const handleVideoCall = () => {
-    toast({
-      content: "Calling Alex...",
+    toast("Calling Alex...", {
       action: {
         label: "Cancel",
         onClick: () => toast.error("Call canceled"),
@@ -257,8 +256,7 @@ const ChatConversationPage: React.FC = () => {
     const amount = 0.5;
     const contact = { name: 'Alex' };
     
-    toast({
-      content: "Send SOL to this contact",
+    toast("Send SOL to this contact", {
       action: {
         label: "Send",
         onClick: () => {
