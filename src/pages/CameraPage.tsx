@@ -59,7 +59,7 @@ const CameraPage = () => {
         <CameraView 
           mode={mode} 
           onCapture={handleImageCaptured}
-          onCancel={() => mode === 'story' ? navigate('/stories') : undefined}
+          onCancel={() => mode === 'story' ? navigate('/stories') : navigate(-1)}
         />
       )}
     </MobileLayout>
