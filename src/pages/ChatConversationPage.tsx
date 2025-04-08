@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Camera, ArrowLeft, Paperclip, Send, Smile, Plus, CreditCard } from 'lucide-react';
+import { Camera, ArrowLeft, Paperclip, Send, Smile, Plus, CreditCard, Image, Mic } from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import ChatMessage from '@/components/chat/ChatMessage';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import TokenTransactionModal from '@/components/chat/TokenTransactionModal';
+import { toast } from 'sonner';
 
 interface ChatMessageData {
   id: string;
@@ -86,11 +88,36 @@ const ChatConversationPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageData[]>(dummyMessages);
   const [isOnline, setIsOnline] = useState(true);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Simulate typing indicator
+  useEffect(() => {
+    if (isOnline) {
+      const typingTimeout = setTimeout(() => {
+        // Simulate the other person typing and sending a message after a delay
+        const simulatedResponse: ChatMessageData = {
+          id: Date.now().toString(),
+          content: 'By the way, have you seen the latest Solana updates?',
+          isOwn: false,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          status: 'sent',
+          type: 'text',
+          senderAvatar: '/placeholder.svg',
+          senderName: 'Alex',
+        };
+        
+        setMessages(prev => [...prev, simulatedResponse]);
+      }, 30000); // 30 seconds delay
+      
+      return () => clearTimeout(typingTimeout);
+    }
+  }, [messages.length, isOnline]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -105,6 +132,28 @@ const ChatConversationPage: React.FC = () => {
       
       setMessages([...messages, newMessage]);
       setMessage('');
+      
+      // Simulate message delivery status change
+      setTimeout(() => {
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === newMessage.id 
+              ? { ...msg, status: 'delivered' as const } 
+              : msg
+          )
+        );
+        
+        // Simulate read receipt after a delay
+        setTimeout(() => {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.isOwn && (msg.status === 'sent' || msg.status === 'delivered')
+                ? { ...msg, status: 'read' as const } 
+                : msg
+            )
+          );
+        }, 3000);
+      }, 1500);
     }
   };
 
@@ -127,6 +176,88 @@ const ChatConversationPage: React.FC = () => {
     };
     
     setMessages([...messages, newMessage]);
+    setShowTransactionModal(false);
+    
+    // Simulate transaction confirmation
+    setTimeout(() => {
+      // Add a response from the other person
+      const responseMessage: ChatMessageData = {
+        id: (Date.now() + 1).toString(),
+        content: `Thank you for sending ${amount} SOL!`,
+        isOwn: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'sent',
+        type: 'text',
+        senderAvatar: '/placeholder.svg',
+        senderName: 'Alex',
+      };
+      
+      setMessages(prev => [...prev, responseMessage]);
+    }, 3000);
+  };
+
+  const handleSendImage = () => {
+    // In a real app, this would open the image picker
+    toast.info("Opening image selector");
+    setShowAttachmentOptions(false);
+    
+    // Simulate sending an image
+    setTimeout(() => {
+      const imageMessage: ChatMessageData = {
+        id: Date.now().toString(),
+        content: '/placeholder.svg',
+        isOwn: true,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'sent',
+        type: 'image',
+      };
+      
+      setMessages(prev => [...prev, imageMessage]);
+    }, 2000);
+  };
+
+  const handleOpenCamera = () => {
+    // Navigate to camera page
+    navigate('/camera');
+    setShowAttachmentOptions(false);
+  };
+
+  const handleStartRecording = () => {
+    setIsRecording(true);
+    toast.info("Recording audio...");
+    
+    // Simulate audio recording
+    setTimeout(() => {
+      setIsRecording(false);
+      toast.success("Audio message sent");
+      
+      const audioMessage: ChatMessageData = {
+        id: Date.now().toString(),
+        content: "Audio message (0:05)",
+        isOwn: true,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'sent',
+        type: 'text',
+      };
+      
+      setMessages(prev => [...prev, audioMessage]);
+    }, 5000);
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    toast.info("Recording canceled");
+  };
+
+  const handleVideoCall = () => {
+    toast({
+      title: "Starting video call",
+      description: "Calling Alex...",
+      action: {
+        label: "Cancel",
+        onClick: () => toast.error("Call canceled"),
+      },
+    });
   };
 
   return (
@@ -162,7 +293,12 @@ const ChatConversationPage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="text-gray-400">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-gray-400"
+                onClick={handleVideoCall}
+              >
                 <Camera size={20} />
               </Button>
             </div>
@@ -188,7 +324,12 @@ const ChatConversationPage: React.FC = () => {
         
         <div className="glass-morphism p-3">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="rounded-full text-gray-400">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full text-gray-400"
+              onClick={() => setShowAttachmentOptions(!showAttachmentOptions)}
+            >
               <Plus size={20} />
             </Button>
             
@@ -199,31 +340,85 @@ const ChatConversationPage: React.FC = () => {
                 onKeyDown={handleKeyPress}
                 placeholder="Type a message"
                 className="pl-3 pr-10 py-2 bg-white/5 border-none rounded-full w-full focus:ring-0"
+                disabled={isRecording}
               />
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 h-8 w-8"
-              >
-                <Smile size={18} />
-              </Button>
+              {!isRecording && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 h-8 w-8"
+                >
+                  <Smile size={18} />
+                </Button>
+              )}
+              {isRecording && (
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
+                  <div className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></div>
+                  <span className="text-sm text-gray-400">Recording...</span>
+                </div>
+              )}
             </div>
             
             <Button 
               variant="ghost" 
               size="icon" 
               className="rounded-full text-gray-400"
-              onClick={handleSendMessage}
+              onClick={isRecording ? handleStopRecording : message.trim() ? handleSendMessage : handleStartRecording}
+              onMouseDown={!message.trim() && !isRecording ? handleStartRecording : undefined}
+              onMouseUp={!message.trim() && isRecording ? handleStopRecording : undefined}
             >
               {message.trim() ? (
                 <Send size={20} className="text-snap-yellow" />
+              ) : isRecording ? (
+                <X size={20} className="text-red-500" />
               ) : (
-                <div className="flex space-x-1">
-                  <Paperclip size={20} />
-                </div>
+                <Mic size={20} />
               )}
             </Button>
           </div>
+          
+          {showAttachmentOptions && (
+            <div className="mt-3 p-2 bg-white/5 rounded-xl animate-fade-in">
+              <div className="grid grid-cols-4 gap-4">
+                <button 
+                  className="flex flex-col items-center gap-1"
+                  onClick={handleSendImage}
+                >
+                  <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <Image size={24} className="text-purple-400" />
+                  </div>
+                  <span className="text-xs text-gray-400">Gallery</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center gap-1"
+                  onClick={handleOpenCamera}
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <Camera size={24} className="text-blue-400" />
+                  </div>
+                  <span className="text-xs text-gray-400">Camera</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center gap-1"
+                  onClick={() => toast.info("Opening NFT Selector")}
+                >
+                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <FileImage size={24} className="text-green-400" />
+                  </div>
+                  <span className="text-xs text-gray-400">NFT</span>
+                </button>
+                <button 
+                  className="flex flex-col items-center gap-1"
+                  onClick={() => setShowTransactionModal(true)}
+                >
+                  <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                    <CreditCard size={24} className="text-yellow-400" />
+                  </div>
+                  <span className="text-xs text-gray-400">SOL</span>
+                </button>
+              </div>
+            </div>
+          )}
           
           <div className="flex justify-center mt-2">
             <Button 

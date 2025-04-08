@@ -1,103 +1,104 @@
 
 import React from 'react';
-import { ArrowUpRight, Copy, ExternalLink } from 'lucide-react';
+import { Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface WalletCardProps {
   solBalance: number;
   address: string;
+  onCopy?: () => void;
 }
 
-const WalletCard: React.FC<WalletCardProps> = ({ solBalance, address }) => {
-  const shortenedAddress = `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
-
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText(address);
-    toast.success('Address copied to clipboard');
+const WalletCard = ({ solBalance, address, onCopy }: WalletCardProps) => {
+  const shortAddress = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(address)
+      .then(() => {
+        if (onCopy) {
+          onCopy();
+        } else {
+          toast.success("Wallet address copied to clipboard");
+        }
+      })
+      .catch(err => {
+        console.error("Failed to copy: ", err);
+        toast.error("Failed to copy address");
+      });
   };
-
-  const formatBalance = (balance: number) => {
-    return balance.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 4
-    });
+  
+  const handleOpenExplorer = () => {
+    toast.info("Opening in Solana Explorer");
+    window.open(`https://explorer.solana.com/address/${address}`, '_blank');
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden">
-      <div className="web3-gradient p-0.5">
-        <div className="bg-snap-dark-blue rounded-2xl p-4">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-400">Wallet Balance</h3>
-              <div className="flex items-baseline mt-1">
-                <span className="text-2xl font-bold">{formatBalance(solBalance)}</span>
-                <span className="ml-1 text-sm font-medium">SOL</span>
-              </div>
-            </div>
-            <div className="p-2 rounded-full bg-white/5 border border-white/10">
-              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana" className="w-6 h-6" />
-            </div>
+    <div className="snap-card overflow-hidden">
+      <div className="bg-gradient-to-r from-solana-purple to-snap-blue p-4 rounded-t-lg">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <p className="text-sm text-white/80">SOL Balance</p>
+            <p className="text-2xl font-bold text-white">{solBalance} SOL</p>
+            <p className="text-sm text-white/80">≈ ${(solBalance * 50).toFixed(2)}</p>
           </div>
-          
-          <div className="flex items-center gap-2 text-sm bg-black/20 rounded-lg p-2">
-            <span className="text-gray-400">{shortenedAddress}</span>
-            <button 
-              onClick={handleCopyAddress} 
-              className="ml-auto p-1 hover:bg-white/5 rounded transition-colors"
-              aria-label="Copy wallet address"
-            >
-              <Copy size={14} className="text-gray-400" />
-            </button>
-            <a 
-              href={`https://explorer.solana.com/address/${address}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="p-1 hover:bg-white/5 rounded transition-colors"
-              aria-label="View on Solana Explorer"
-            >
-              <ExternalLink size={14} className="text-gray-400" />
-            </a>
-          </div>
-          
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <Button 
-              size="sm" 
-              className="rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
-              aria-label="Receive SOL"
-            >
-              <span>Receive</span>
-            </Button>
-            <Button 
-              size="sm" 
-              className="rounded-lg bg-snap-yellow text-black hover:bg-snap-yellow/90 transition-colors"
-              aria-label="Send SOL"
-            >
-              <span>Send</span>
-              <ArrowUpRight size={14} className="ml-1" />
-            </Button>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-xs text-gray-400">Transaction Activity</span>
-                <div className="flex items-center gap-1 mt-1">
-                  <div className="h-1 w-1 rounded-full bg-green-500"></div>
-                  <span className="text-xs">Latest: 2 hours ago</span>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-xs text-snap-yellow hover:text-snap-yellow/90 hover:bg-white/5 px-2 py-1 h-auto"
-              >
-                View all
-              </Button>
-            </div>
+          <div className="h-12 w-12 flex items-center justify-center">
+            <img 
+              src="https://cryptologos.cc/logos/solana-sol-logo.png" 
+              alt="Solana" 
+              className="h-full object-contain"
+            />
           </div>
         </div>
+
+        <div className="flex items-center justify-between bg-black/20 rounded-lg p-2 mt-2">
+          <p className="text-sm text-white truncate" title={address}>{shortAddress}</p>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10"
+              onClick={handleCopy}
+            >
+              <Copy size={14} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10"
+              onClick={handleOpenExplorer}
+            >
+              <ExternalLink size={14} />
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-3 bg-white/5 rounded-b-lg flex justify-between">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-snap-yellow"
+          onClick={() => toast.info("Opening deposit screen")}
+        >
+          Deposit
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-snap-yellow"
+          onClick={() => toast.info("Opening swap screen")}
+        >
+          Swap
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-snap-yellow"
+          onClick={() => toast.info("Opening send screen")}
+        >
+          Send
+        </Button>
       </div>
     </div>
   );
