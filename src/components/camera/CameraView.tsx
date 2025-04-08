@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Camera, CameraIcon, Sparkles, Timer, X, Send, 
@@ -30,6 +31,19 @@ const CameraView: React.FC<CameraViewProps> = ({
   const [storyCaption, setStoryCaption] = useState('');
   const captionInputRef = useRef<HTMLInputElement>(null);
 
+  // For image editing
+  const [activeEditTool, setActiveEditTool] = useState<string | null>(null);
+  const [drawingColor, setDrawingColor] = useState('#FFFFFF');
+  const [textInput, setTextInput] = useState('');
+  const [textPosition, setTextPosition] = useState({ x: 50, y: 50 });
+  const [stickerType, setStickerType] = useState<string | null>(null);
+  const [stickers, setStickers] = useState<Array<{id: string, type: string, x: number, y: number}>>([]);
+  const [textOverlays, setTextOverlays] = useState<Array<{id: string, text: string, x: number, y: number, color: string}>>([]);
+  const [drawings, setDrawings] = useState<Array<{id: string, points: {x: number, y: number}[], color: string}>>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentDrawing, setCurrentDrawing] = useState<{x: number, y: number}[]>([]);
+  const imageRef = useRef<HTMLDivElement>(null);
+
   const filters = [
     { id: 'solana', name: 'Solana' },
     { id: 'nft', name: 'NFT' },
@@ -42,6 +56,19 @@ const CameraView: React.FC<CameraViewProps> = ({
     { id: 'draw', icon: PencilLine, label: 'Draw' },
     { id: 'sticker', icon: Sticker, label: 'Sticker' },
     { id: 'nft', icon: FileImage, label: 'NFT' },
+  ];
+
+  const availableStickers = [
+    { id: 'smile', emoji: '😊' },
+    { id: 'heart', emoji: '❤️' },
+    { id: 'fire', emoji: '🔥' },
+    { id: 'rocket', emoji: '🚀' },
+    { id: 'money', emoji: '💰' },
+    { id: 'solana', emoji: '◎' },
+  ];
+
+  const colorOptions = [
+    '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF'
   ];
 
   const handleCapture = () => {
@@ -64,6 +91,10 @@ const CameraView: React.FC<CameraViewProps> = ({
     setCapturedImage(null);
     setActiveFilter(null);
     setStoryCaption('');
+    setStickers([]);
+    setTextOverlays([]);
+    setDrawings([]);
+    setActiveEditTool(null);
   };
 
   const handleSave = () => {
@@ -76,6 +107,9 @@ const CameraView: React.FC<CameraViewProps> = ({
       setCapturedImage(null);
       setActiveFilter(null);
       setStoryCaption('');
+      setStickers([]);
+      setTextOverlays([]);
+      setDrawings([]);
     }
   };
 
@@ -87,7 +121,7 @@ const CameraView: React.FC<CameraViewProps> = ({
         if (onCapture) onCapture(capturedImage);
       } else {
         // Show send options
-        toast.info("Choose who to send this to", {
+        toast("Choose who to send this to", {
           action: {
             label: "Send",
             onClick: () => toast.info("Opening contacts selector"),
@@ -110,6 +144,148 @@ const CameraView: React.FC<CameraViewProps> = ({
     toast.info(`Flash: ${modes[nextIndex]}`);
   };
 
+  // Image Editing Functions
+  const handleToolClick = (toolId: string) => {
+    if (activeEditTool === toolId) {
+      setActiveEditTool(null);
+    } else {
+      setActiveEditTool(toolId);
+      
+      if (toolId === 'text') {
+        setTextInput('');
+      } else if (toolId === 'sticker') {
+        setStickerType(null);
+      }
+    }
+  };
+
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current || !activeEditTool) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    if (activeEditTool === 'sticker' && stickerType) {
+      addSticker(x, y);
+    } else if (activeEditTool === 'text' && textInput) {
+      addTextOverlay(x, y);
+    }
+  };
+
+  const addSticker = (x: number, y: number) => {
+    if (!stickerType) return;
+    
+    const newSticker = {
+      id: `sticker-${Date.now()}`,
+      type: stickerType,
+      x,
+      y
+    };
+    
+    setStickers([...stickers, newSticker]);
+    setStickerType(null);
+  };
+
+  const addTextOverlay = (x: number, y: number) => {
+    if (!textInput.trim()) return;
+    
+    const newText = {
+      id: `text-${Date.now()}`,
+      text: textInput,
+      x,
+      y,
+      color: drawingColor
+    };
+    
+    setTextOverlays([...textOverlays, newText]);
+    setTextInput('');
+  };
+
+  const handleDrawStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (activeEditTool !== 'draw' || !imageRef.current) return;
+    
+    setIsDrawing(true);
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setCurrentDrawing([{ x, y }]);
+  };
+
+  const handleDrawMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDrawing || !imageRef.current) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setCurrentDrawing([...currentDrawing, { x, y }]);
+  };
+
+  const handleDrawEnd = () => {
+    if (!isDrawing || currentDrawing.length < 2) {
+      setIsDrawing(false);
+      setCurrentDrawing([]);
+      return;
+    }
+    
+    const newDrawing = {
+      id: `drawing-${Date.now()}`,
+      points: currentDrawing,
+      color: drawingColor
+    };
+    
+    setDrawings([...drawings, newDrawing]);
+    setIsDrawing(false);
+    setCurrentDrawing([]);
+  };
+
+  const renderDrawings = () => {
+    return drawings.map(drawing => {
+      if (drawing.points.length < 2) return null;
+      
+      let pathData = `M ${drawing.points[0].x} ${drawing.points[0].y}`;
+      drawing.points.slice(1).forEach(point => {
+        pathData += ` L ${point.x} ${point.y}`;
+      });
+      
+      return (
+        <svg key={drawing.id} className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 3 }}>
+          <path
+            d={pathData}
+            stroke={drawing.color}
+            strokeWidth="2"
+            fill="none"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      );
+    });
+  };
+
+  const renderCurrentDrawing = () => {
+    if (!isDrawing || currentDrawing.length < 2) return null;
+    
+    let pathData = `M ${currentDrawing[0].x} ${currentDrawing[0].y}`;
+    currentDrawing.slice(1).forEach(point => {
+      pathData += ` L ${point.x} ${point.y}`;
+    });
+    
+    return (
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 4 }}>
+        <path
+          d={pathData}
+          stroke={drawingColor}
+          strokeWidth="2"
+          fill="none"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    );
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -130,12 +306,22 @@ const CameraView: React.FC<CameraViewProps> = ({
       {/* Camera Viewfinder */}
       <div className="absolute inset-0 bg-black">
         {capturedImage ? (
-          <div className="relative h-full">
+          <div 
+            ref={imageRef}
+            className="relative h-full"
+            onClick={handleImageClick}
+            onMouseDown={handleDrawStart}
+            onMouseMove={handleDrawMove}
+            onMouseUp={handleDrawEnd}
+            onMouseLeave={handleDrawEnd}
+          >
             <img 
               src={capturedImage} 
               alt="Captured" 
               className={`h-full w-full object-cover ${activeFilter ? `filter-${activeFilter}` : ''}`}
             />
+            
+            {/* Filters */}
             {activeFilter === 'solana' && (
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-4 right-4 bg-solana-purple text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
@@ -149,6 +335,46 @@ const CameraView: React.FC<CameraViewProps> = ({
               </div>
             )}
 
+            {/* Stickers */}
+            {stickers.map(sticker => {
+              const emojiSticker = availableStickers.find(s => s.id === sticker.type);
+              return (
+                <div 
+                  key={sticker.id}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 text-4xl pointer-events-none"
+                  style={{ 
+                    left: `${sticker.x}%`, 
+                    top: `${sticker.y}%`,
+                    zIndex: 2 
+                  }}
+                >
+                  {emojiSticker?.emoji || '😊'}
+                </div>
+              );
+            })}
+
+            {/* Text Overlays */}
+            {textOverlays.map(textOverlay => (
+              <div 
+                key={textOverlay.id}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ 
+                  left: `${textOverlay.x}%`, 
+                  top: `${textOverlay.y}%`,
+                  zIndex: 2 
+                }}
+              >
+                <p className="text-2xl font-bold break-words max-w-[150px] text-center" style={{ color: textOverlay.color }}>
+                  {textOverlay.text}
+                </p>
+              </div>
+            ))}
+
+            {/* Drawings */}
+            {renderDrawings()}
+            {renderCurrentDrawing()}
+
+            {/* Story caption input */}
             {mode === 'story' && (
               <div className="absolute bottom-32 left-0 right-0 px-4">
                 <input
@@ -159,6 +385,66 @@ const CameraView: React.FC<CameraViewProps> = ({
                   placeholder="Add a caption to your story..."
                   className="w-full bg-black/50 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-snap-yellow"
                 />
+              </div>
+            )}
+
+            {/* Text input for text tool */}
+            {activeEditTool === 'text' && (
+              <div className="absolute top-20 left-0 right-0 px-4 flex flex-col items-center">
+                <input
+                  type="text"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Type text here..."
+                  className="w-full max-w-md bg-black/50 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-snap-yellow mb-2"
+                />
+                <p className="text-white text-xs">Tap on the image to place your text</p>
+                <div className="flex gap-2 mt-2">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color}
+                      className={`w-8 h-8 rounded-full border-2 ${drawingColor === color ? 'border-white' : 'border-transparent'}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setDrawingColor(color)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sticker selector for sticker tool */}
+            {activeEditTool === 'sticker' && (
+              <div className="absolute top-20 left-0 right-0 px-4">
+                <div className="bg-black/50 backdrop-blur-md rounded-xl p-3">
+                  <div className="grid grid-cols-6 gap-2">
+                    {availableStickers.map(sticker => (
+                      <button
+                        key={sticker.id}
+                        className={`w-12 h-12 flex items-center justify-center text-2xl rounded-lg ${stickerType === sticker.id ? 'bg-white/30' : 'bg-white/10'}`}
+                        onClick={() => setStickerType(sticker.id)}
+                      >
+                        {sticker.emoji}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-white text-xs text-center mt-2">Tap on the image to place your sticker</p>
+                </div>
+              </div>
+            )}
+
+            {/* Color picker for drawing tool */}
+            {activeEditTool === 'draw' && (
+              <div className="absolute top-20 left-0 right-0 px-4 flex justify-center">
+                <div className="bg-black/50 backdrop-blur-md rounded-xl p-3 flex gap-2">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color}
+                      className={`w-8 h-8 rounded-full border-2 ${drawingColor === color ? 'border-white' : 'border-transparent'}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setDrawingColor(color)}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -267,13 +553,13 @@ const CameraView: React.FC<CameraViewProps> = ({
               {editingTools.map(tool => (
                 <button
                   key={tool.id}
-                  className="flex flex-col items-center gap-1"
-                  onClick={() => toast.info(`${tool.label} tool selected`)}
+                  className={`flex flex-col items-center gap-1 ${activeEditTool === tool.id ? 'opacity-100' : 'opacity-70'}`}
+                  onClick={() => handleToolClick(tool.id)}
                 >
-                  <div className="snap-icon-button">
-                    <tool.icon size={20} className="text-white" />
+                  <div className={`snap-icon-button ${activeEditTool === tool.id ? 'bg-snap-yellow text-black' : ''}`}>
+                    <tool.icon size={20} className={activeEditTool === tool.id ? 'text-black' : 'text-white'} />
                   </div>
-                  <span className="text-xs text-white/70">{tool.label}</span>
+                  <span className="text-xs text-white">{tool.label}</span>
                 </button>
               ))}
             </div>

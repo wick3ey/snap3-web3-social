@@ -4,11 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import MobileLayout from '@/components/layout/MobileLayout';
 import CameraView from '@/components/camera/CameraView';
 import { toast } from 'sonner';
+import ContactSelector from '@/components/camera/ContactSelector';
 
 const CameraPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'regular' | 'story'>('regular');
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [showContactSelector, setShowContactSelector] = useState(false);
   
   useEffect(() => {
     // Check if we're in story creation mode from the location state
@@ -19,28 +22,46 @@ const CameraPage = () => {
   }, [location]);
 
   const handleImageCaptured = (imageData: string) => {
+    setCapturedImage(imageData);
+    
     if (mode === 'story') {
       // In a real app, this would save to a stories database
       toast.success("Story created successfully!");
       navigate('/stories');
     } else {
-      // Regular camera mode
-      toast("Choose who to send this to", {
-        action: {
-          label: "Send",
-          onClick: () => navigate('/chat'),
-        },
-      });
+      // Show contact selector for regular camera mode
+      setShowContactSelector(true);
     }
+  };
+
+  const handleSendToContact = (contactId: string) => {
+    // In a real app, this would save the message in a database
+    toast.success(`Snap sent to ${contactId}!`);
+    setShowContactSelector(false);
+    setCapturedImage(null);
+    navigate('/chat');
+  };
+
+  const handleCancelSend = () => {
+    setShowContactSelector(false);
+    setCapturedImage(null);
   };
 
   return (
     <MobileLayout>
-      <CameraView 
-        mode={mode} 
-        onCapture={handleImageCaptured}
-        onCancel={() => mode === 'story' ? navigate('/stories') : undefined}
-      />
+      {showContactSelector ? (
+        <ContactSelector 
+          onSelectContact={handleSendToContact} 
+          onCancel={handleCancelSend}
+          image={capturedImage || undefined}
+        />
+      ) : (
+        <CameraView 
+          mode={mode} 
+          onCapture={handleImageCaptured}
+          onCancel={() => mode === 'story' ? navigate('/stories') : undefined}
+        />
+      )}
     </MobileLayout>
   );
 };
