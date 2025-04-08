@@ -56,14 +56,14 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
                 to={item.path}
                 className={cn(
                   "flex flex-col items-center justify-center py-1 px-3", 
-                  isActive ? "text-snap-yellow" : "text-gray-400 hover:text-gray-300"
+                  isActive ? "text-solana-green" : "text-gray-400 hover:text-gray-300"
                 )}
               >
                 <IconComponent 
                   size={item.path === '/' ? 28 : 24} 
                   className={cn(
                     "transition-all",
-                    item.path === '/' && "p-1 rounded-full bg-snap-yellow text-black"
+                    item.path === '/' && "p-1 rounded-full bg-solana-purple text-white"
                   )} 
                   strokeWidth={item.path === '/' ? 1.5 : 2} 
                 />

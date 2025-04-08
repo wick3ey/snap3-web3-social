@@ -1,16 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { toast } from 'sonner';
 import { 
-  TrendingUp, Search, DollarSign, Rocket, 
-  Plus, Settings, Sparkles, Bitcoin, Zap
+  TrendingUp, Search, Rocket, 
+  Plus, Sparkles, Upload, Star, 
+  ArrowRight, Image, Zap
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 interface MemeToken {
@@ -123,11 +125,12 @@ const PumpPage = () => {
     name: '',
     symbol: '',
     description: '',
-    supply: '1000000000'
+    logo: null as File | null
   });
   
   const [showDetails, setShowDetails] = useState<string | null>(null);
-  const [selectedChain, setSelectedChain] = useState('solana');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewLogo, setPreviewLogo] = useState<string | null>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -144,13 +147,27 @@ const PumpPage = () => {
     setShowDetails(tokenId);
   };
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setNewToken({...newToken, logo: file});
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreviewLogo(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleCreateToken = () => {
     if (!newToken.name || !newToken.symbol) {
       toast.error("Please fill all required fields");
       return;
     }
     
-    toast.success(`Creating ${newToken.name} (${newToken.symbol}) token on ${selectedChain}...`);
+    toast.success(`Creating ${newToken.name} (${newToken.symbol}) token on Solana...`);
     
     // In a real app, here we would interact with an API to create the token
     setTimeout(() => {
@@ -160,9 +177,20 @@ const PumpPage = () => {
         name: '',
         symbol: '',
         description: '',
-        supply: '1000000000'
+        logo: null
       });
+      setPreviewLogo(null);
     }, 2000);
+  };
+
+  const resetCreateForm = () => {
+    setNewToken({
+      name: '',
+      symbol: '',
+      description: '',
+      logo: null
+    });
+    setPreviewLogo(null);
   };
 
   const filteredTokens = trendingTokens.filter(token => 
@@ -174,7 +202,7 @@ const PumpPage = () => {
     <MobileLayout>
       <div className="relative flex flex-col h-full">
         {/* Header */}
-        <div className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 p-4 pb-16">
+        <div className="w-full bg-gradient-to-r from-solana-purple via-snap-purple to-solana-blue p-4 pb-16">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl font-bold text-white">Pump.fun</h1>
@@ -184,7 +212,10 @@ const PumpPage = () => {
               variant="ghost" 
               size="icon" 
               className="bg-white/20 text-white rounded-full"
-              onClick={() => setShowCreateDialog(true)}
+              onClick={() => {
+                setShowCreateDialog(true);
+                resetCreateForm();
+              }}
             >
               <Plus size={20} />
             </Button>
@@ -203,9 +234,9 @@ const PumpPage = () => {
         
         {/* Trending List */}
         <div className="relative -mt-10 mx-4 z-10">
-          <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
+          <div className="neo-blur rounded-2xl p-4">
             <div className="flex items-center mb-4">
-              <TrendingUp size={20} className="text-snap-yellow mr-2" />
+              <TrendingUp size={20} className="text-solana-green mr-2" />
               <h2 className="text-lg font-semibold">Top 10 Trending</h2>
             </div>
             
@@ -218,7 +249,7 @@ const PumpPage = () => {
                     onClick={() => handleTokenClick(token.id)}
                   >
                     <div className="flex items-center">
-                      <Avatar className="h-10 w-10 mr-3 bg-gradient-to-br from-purple-500 to-pink-500">
+                      <Avatar className="h-10 w-10 mr-3 bg-gradient-to-br from-solana-purple to-solana-blue">
                         <AvatarImage src={token.logo} />
                         <AvatarFallback>{token.symbol.substring(0, 2)}</AvatarFallback>
                       </Avatar>
@@ -251,92 +282,98 @@ const PumpPage = () => {
         </div>
         
         {/* Create Token Dialog */}
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogContent className="sm:max-w-md">
+        <Dialog open={showCreateDialog} onOpenChange={(open) => {
+          setShowCreateDialog(open);
+          if (!open) resetCreateForm();
+        }}>
+          <DialogContent className="sm:max-w-md bg-gradient-to-b from-background to-black/70 backdrop-blur-lg border-solana-purple/20">
             <DialogHeader>
-              <DialogTitle>Create New Meme Token</DialogTitle>
+              <DialogTitle className="text-center text-xl font-bold bg-gradient-to-r from-solana-purple to-solana-blue bg-clip-text text-transparent">
+                Create New Meme Token
+              </DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-4 py-4">
+            <div className="space-y-5 py-4">
+              {/* Logo Upload */}
+              <div className="flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "w-24 h-24 rounded-full flex items-center justify-center cursor-pointer border-2 border-dashed transition-all",
+                    previewLogo 
+                      ? "border-transparent" 
+                      : "border-solana-purple/50 hover:border-solana-purple"
+                  )}
+                  style={previewLogo ? {
+                    backgroundImage: `url(${previewLogo})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  } : {}}
+                >
+                  {!previewLogo && (
+                    <div className="flex flex-col items-center">
+                      <Image size={24} className="opacity-50 mb-1" />
+                      <span className="text-xs text-center opacity-50">Upload logo</span>
+                    </div>
+                  )}
+                </div>
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleLogoChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <p className="mt-2 text-xs text-muted-foreground">Recommended: 512x512px PNG</p>
+              </div>
+              
               <div className="space-y-2">
-                <label className="text-sm font-medium">Token Name*</label>
+                <label className="text-sm font-medium text-foreground/80">Token Name*</label>
                 <Input 
                   value={newToken.name}
                   onChange={(e) => setNewToken({...newToken, name: e.target.value})}
                   placeholder="e.g. Super Doge"
-                  className="bg-background"
+                  className="bg-background/40 border-white/10 focus-visible:ring-solana-purple"
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">Token Symbol*</label>
+                <label className="text-sm font-medium text-foreground/80">Token Symbol*</label>
                 <Input 
                   value={newToken.symbol}
                   onChange={(e) => setNewToken({...newToken, symbol: e.target.value.toUpperCase()})}
                   placeholder="e.g. SDOGE"
-                  className="bg-background uppercase"
+                  className="bg-background/40 border-white/10 uppercase focus-visible:ring-solana-purple"
                   maxLength={6}
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
-                <textarea 
+                <label className="text-sm font-medium text-foreground/80">Description</label>
+                <Textarea 
                   value={newToken.description}
                   onChange={(e) => setNewToken({...newToken, description: e.target.value})}
                   placeholder="What makes your token special?"
-                  className="w-full h-20 px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="bg-background/40 border-white/10 h-20 focus-visible:ring-solana-purple"
                 />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Initial Supply</label>
-                <Input 
-                  type="number"
-                  value={newToken.supply}
-                  onChange={(e) => setNewToken({...newToken, supply: e.target.value})}
-                  className="bg-background"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Blockchain</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    type="button"
-                    variant={selectedChain === 'solana' ? 'default' : 'outline'} 
-                    className={cn(
-                      selectedChain === 'solana' && "bg-gradient-to-r from-purple-500 to-purple-700"
-                    )}
-                    onClick={() => setSelectedChain('solana')}
-                  >
-                    Solana
-                  </Button>
-                  <Button 
-                    type="button"
-                    variant={selectedChain === 'ethereum' ? 'default' : 'outline'} 
-                    onClick={() => setSelectedChain('ethereum')}
-                  >
-                    Ethereum
-                  </Button>
-                </div>
               </div>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-col gap-2">
+              <Button 
+                type="button" 
+                onClick={handleCreateToken}
+                className="w-full bg-gradient-to-r from-solana-purple to-solana-blue hover:opacity-90 font-semibold"
+              >
+                Create Token on Solana
+              </Button>
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => setShowCreateDialog(false)}
+                className="w-full border-white/10 text-white/80 hover:bg-white/5"
               >
                 Cancel
-              </Button>
-              <Button 
-                type="button" 
-                onClick={handleCreateToken}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              >
-                Create Token
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -345,7 +382,7 @@ const PumpPage = () => {
         {/* Token Details Sheet */}
         {showDetails && (
           <Sheet open={!!showDetails} onOpenChange={() => setShowDetails(null)}>
-            <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh]">
+            <SheetContent side="bottom" className="rounded-t-xl max-h-[80vh] bg-gradient-to-b from-background to-black/70 backdrop-blur-lg border-t border-solana-purple/20">
               {(() => {
                 const token = trendingTokens.find(t => t.id === showDetails);
                 if (!token) return null;
@@ -353,7 +390,7 @@ const PumpPage = () => {
                 return (
                   <div className="py-4">
                     <div className="flex items-center space-x-4 mb-6">
-                      <Avatar className="h-16 w-16 bg-gradient-to-br from-purple-500 to-pink-500">
+                      <Avatar className="h-16 w-16 bg-gradient-to-br from-solana-purple to-solana-blue">
                         <AvatarImage src={token.logo} />
                         <AvatarFallback>{token.symbol.substring(0, 2)}</AvatarFallback>
                       </Avatar>
@@ -368,7 +405,7 @@ const PumpPage = () => {
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/5 mb-4">
+                    <div className="flex justify-between items-center p-4 rounded-xl neo-blur mb-4">
                       <div>
                         <p className="text-sm text-gray-400">Current Price</p>
                         <p className="text-2xl font-bold">${token.price.toFixed(token.price < 0.001 ? 7 : 4)}</p>
@@ -387,11 +424,11 @@ const PumpPage = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3 mb-6">
-                      <Button className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700">
-                        <DollarSign size={16} />
+                      <Button className="flex items-center justify-center gap-2 bg-gradient-to-r from-solana-purple to-solana-blue hover:opacity-90">
+                        <Zap size={16} />
                         Buy
                       </Button>
-                      <Button variant="outline" className="flex items-center justify-center gap-2">
+                      <Button variant="outline" className="flex items-center justify-center gap-2 border-white/10 hover:bg-white/5">
                         <Rocket size={16} />
                         Share
                       </Button>
@@ -399,14 +436,20 @@ const PumpPage = () => {
                     
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-medium mb-2">About {token.name}</h3>
+                        <h3 className="font-medium mb-2 flex items-center">
+                          <Star size={16} className="mr-2 text-solana-green" />
+                          About {token.name}
+                        </h3>
                         <p className="text-sm text-gray-400">
                           {token.name} is a community-driven meme token that aims to bring fun and engagement to the crypto space. The token has no utility, just pure memetic value and community power.
                         </p>
                       </div>
                       
                       <div>
-                        <h3 className="font-medium mb-2">Token Info</h3>
+                        <h3 className="font-medium mb-2 flex items-center">
+                          <Zap size={16} className="mr-2 text-solana-green" />
+                          Token Info
+                        </h3>
                         <div className="space-y-2">
                           <div className="flex justify-between py-2 border-b border-white/10">
                             <span className="text-sm text-gray-400">Chain</span>
