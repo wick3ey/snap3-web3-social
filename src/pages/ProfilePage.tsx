@@ -1,22 +1,27 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Camera, Wallet, LogOut, Copy, Bell, Shield, Moon, CircleHelp, Gift, Pencil } from 'lucide-react';
+import { Settings, Camera, Wallet, LogOut, Copy, Bell, Shield, Moon, CircleHelp, Gift, Pencil, Users, Globe, Award, BookMarked, Lock, MessageSquare } from 'lucide-react';
 import MobileLayout from '@/components/layout/MobileLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import WalletCard from '@/components/profile/WalletCard';
 import NFTDisplay from '@/components/profile/NFTDisplay';
 import SingleNFTDisplay from '@/components/profile/SingleNFTDisplay';
+import ProfileStats from '@/components/profile/ProfileStats';
+import ProfileHeader from '@/components/profile/ProfileHeader';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
-
+  const [activeTab, setActiveTab] = useState("nfts");
+  
   // Dummy user data
   const [user, setUser] = useState({
     name: 'Jane Doe',
@@ -27,6 +32,8 @@ const ProfilePage = () => {
     followersCount: 1258,
     followingCount: 432,
     verified: true,
+    level: 8,
+    joinedDate: 'March 2023',
   });
 
   // Sample avatar options - in a real app, these might come from an API or user uploads
@@ -43,6 +50,22 @@ const ProfilePage = () => {
     solBalance: 24.56,
     nftCount: 17,
   };
+
+  // Dummy achievements data
+  const achievements = [
+    { id: 1, name: 'Early Adopter', icon: <Award size={18} className="text-yellow-400" />, completed: true },
+    { id: 2, name: 'NFT Collector', icon: <BookMarked size={18} className="text-purple-400" />, completed: true },
+    { id: 3, name: 'Social Butterfly', icon: <Users size={18} className="text-blue-400" />, completed: false },
+    { id: 4, name: 'Diamond Hands', icon: <Lock size={18} className="text-cyan-400" />, completed: true },
+  ];
+
+  // Dummy activity data
+  const activities = [
+    { id: 1, type: 'purchase', title: 'Purchased NFT', description: 'Bought DegenApe #4531', time: '2 hours ago' },
+    { id: 2, type: 'follow', title: 'New Follower', description: 'Alex started following you', time: '5 hours ago' },
+    { id: 3, type: 'sale', title: 'NFT Sold', description: 'Sold Solana Monkey #2134 for 3.2 SOL', time: '1 day ago' },
+    { id: 4, type: 'message', title: 'New Message', description: 'Sarah sent you a message', time: '2 days ago' },
+  ];
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(user.walletAddress)
@@ -102,137 +125,144 @@ const ProfilePage = () => {
     });
   };
 
+  const handleSendMessage = (contactId: string) => {
+    navigate(`/chat/${contactId}`);
+  };
+
   return (
     <MobileLayout>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-snap-dark to-black">
         {/* Header */}
-        <div className="p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Profile</h1>
+        <div className="p-4 flex justify-between items-center sticky top-0 z-10 bg-snap-dark/80 backdrop-blur-lg border-b border-white/5">
+          <h1 className="text-xl font-bold text-gradient">Profile</h1>
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => setShowSettings(true)}
+            className="bg-white/5 hover:bg-white/10 transition-all"
           >
             <Settings size={20} />
           </Button>
         </div>
 
-        {/* Profile Header */}
-        <div className="px-4 py-2">
-          <div className="flex items-start">
-            <div className="relative">
-              <Avatar className="h-20 w-20 border-2 border-solana-purple">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
-              </Avatar>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute bottom-0 right-0 bg-solana-purple text-white rounded-full h-6 w-6"
-                onClick={handleChangeProfilePicture}
-              >
-                <Camera size={14} />
-              </Button>
-            </div>
-            
-            <div className="ml-4 flex-1">
-              <div className="flex items-center">
-                <h2 className="text-lg font-bold">{user.name}</h2>
-                {user.verified && (
-                  <div className="ml-1.5 bg-solana-purple text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                    ✓
-                  </div>
-                )}
-              </div>
-              <div className="text-sm text-gray-400 mb-2">@{user.username}</div>
-              <div className="text-sm">{user.bio}</div>
-              
-              <div className="flex mt-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 px-2 text-sm"
-                  onClick={handleEditProfile}
-                >
-                  <Pencil size={14} className="mr-1" />
-                  Edit
-                </Button>
-                {!user.verified && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 px-2 text-sm"
-                    onClick={handleRequestVerification}
-                  >
-                    <Shield size={14} className="mr-1" />
-                    Verify
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-around mt-4 pb-4 border-b border-white/10">
-            <div className="text-center">
-              <div className="font-bold">{user.followersCount}</div>
-              <div className="text-xs text-gray-400">Followers</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold">{user.followingCount}</div>
-              <div className="text-xs text-gray-400">Following</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold">{wallet.nftCount}</div>
-              <div className="text-xs text-gray-400">NFTs</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Wallet Section */}
-        <div className="px-4 py-4">
-          <h3 className="text-lg font-semibold mb-3">Wallet</h3>
-          <WalletCard 
-            solBalance={wallet.solBalance} 
-            address={user.walletAddress}
-            onCopy={handleCopyAddress}
+        <div className="flex-1 overflow-auto pb-20">
+          {/* Profile Header with Avatar and Info */}
+          <ProfileHeader 
+            user={user}
+            onEditProfile={handleEditProfile}
+            onChangeProfilePicture={handleChangeProfilePicture}
+            onVerify={handleRequestVerification}
           />
-        </div>
 
-        {/* NFT Section */}
-        <div className="px-4 py-4">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-semibold">NFT Collection</h3>
-            <Button 
-              variant="link" 
-              className="h-auto p-0 text-sm text-solana-purple"
-              onClick={() => toast.info("Viewing all NFTs")}
-            >
-              View All
-            </Button>
-          </div>
+          {/* Stats Section */}
+          <ProfileStats 
+            followersCount={user.followersCount}
+            followingCount={user.followingCount}
+            nftCount={wallet.nftCount}
+            level={user.level}
+          />
           
-          <div className="grid grid-cols-3 gap-2">
-            <SingleNFTDisplay 
-              image="/placeholder.svg" 
-              name="BAYC #3429"
-              collectionName="Bored Ape YC"
-              onClick={() => toast.info("Viewing NFT details")}
-            />
-            <SingleNFTDisplay 
-              image="/placeholder.svg" 
-              name="Degen #892"
-              collectionName="DegenApes"
-              onClick={() => toast.info("Viewing NFT details")}
-            />
-            <SingleNFTDisplay 
-              image="/placeholder.svg" 
-              name="SMB #1432"
-              collectionName="Solana Monkeys"
-              onClick={() => toast.info("Viewing NFT details")}
+          {/* Wallet Section */}
+          <div className="px-4 py-4">
+            <h3 className="text-lg font-semibold mb-3">Wallet</h3>
+            <WalletCard 
+              solBalance={wallet.solBalance} 
+              address={user.walletAddress}
+              onCopy={handleCopyAddress}
             />
           </div>
-        </div>
 
+          {/* Tabs Section */}
+          <div className="px-4 py-2">
+            <Tabs defaultValue="nfts" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full grid grid-cols-3 bg-white/5">
+                <TabsTrigger value="nfts" className="data-[state=active]:bg-solana-purple">
+                  NFTs
+                </TabsTrigger>
+                <TabsTrigger value="achievements" className="data-[state=active]:bg-solana-purple">
+                  Badges
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="data-[state=active]:bg-solana-purple">
+                  Activity
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="nfts" className="mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-semibold">NFT Collection</h3>
+                  <Button 
+                    variant="link" 
+                    className="h-auto p-0 text-sm text-solana-purple"
+                    onClick={() => toast.info("Viewing all NFTs")}
+                  >
+                    View All
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <SingleNFTDisplay 
+                    image="/placeholder.svg" 
+                    name="BAYC #3429"
+                    collectionName="Bored Ape YC"
+                    onClick={() => toast.info("Viewing NFT details")}
+                  />
+                  <SingleNFTDisplay 
+                    image="/placeholder.svg" 
+                    name="Degen #892"
+                    collectionName="DegenApes"
+                    onClick={() => toast.info("Viewing NFT details")}
+                  />
+                  <SingleNFTDisplay 
+                    image="/placeholder.svg" 
+                    name="SMB #1432"
+                    collectionName="Solana Monkeys"
+                    onClick={() => toast.info("Viewing NFT details")}
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="achievements" className="mt-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {achievements.map(achievement => (
+                    <div 
+                      key={achievement.id} 
+                      className={`p-3 rounded-lg border ${achievement.completed ? 'border-solana-purple bg-solana-purple/10' : 'border-white/10 bg-white/5'}`}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 mr-2">
+                          {achievement.icon}
+                        </div>
+                        <span className="font-medium">{achievement.name}</span>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {achievement.completed ? 
+                          'Achievement unlocked' : 
+                          'In progress'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="activity" className="mt-4">
+                <div className="space-y-3">
+                  {activities.map(activity => (
+                    <div key={activity.id} className="p-3 rounded-lg border border-white/10 bg-white/5">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium">{activity.title}</h4>
+                          <p className="text-sm text-gray-400">{activity.description}</p>
+                        </div>
+                        <span className="text-xs text-gray-500">{activity.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+        
         {/* Settings Sheet */}
         <Sheet open={showSettings} onOpenChange={setShowSettings}>
           <SheetContent className="w-[85%] sm:max-w-md bg-snap-dark border-white/10">
@@ -284,7 +314,7 @@ const ProfilePage = () => {
                     toast.info("Privacy settings would open here");
                   }}
                 >
-                  <Shield size={18} className="mr-2" />
+                  <Lock size={18} className="mr-2" />
                   Privacy
                 </Button>
                 
