@@ -128,8 +128,8 @@ const MapPage = () => {
   };
 
   const handleUserClick = (userId: string) => {
-    toast({
-      content: "Open chat or view profile?",
+    // Replace incorrect toast usage with Sonner's correct syntax
+    toast("Open chat or view profile?", {
       action: {
         label: "Chat",
         onClick: () => {
