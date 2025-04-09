@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
-import { Tables } from '@/integrations/supabase/types';
+import type { Database } from '@/integrations/supabase/types';
 
 // Define the Profile type using the generated Database types
-type Profile = Tables<'profiles'>;
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 interface AuthContextProps {
   session: Session | null;
