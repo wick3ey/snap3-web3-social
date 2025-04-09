@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -95,6 +96,7 @@ const CreateProfilePage = () => {
         .upsert({
           id: user.id,
           username,
+          wallet_address: null,  // Include wallet_address as null to satisfy TypeScript
           last_login: new Date().toISOString(),
         });
       
