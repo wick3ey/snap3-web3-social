@@ -80,10 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(null);
       setHasProfile(false);
       navigate('/auth');
-      toast.success('Logged out successfully');
+      toast.success('Utloggad');
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Error signing out');
+      toast.error('Kunde inte logga ut');
     }
   };
 
@@ -109,16 +109,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // If this was a signup, show welcome message
           if (type === 'signup') {
-            toast.success('Account verified successfully! Welcome!');
+            toast.success('Konto verifierat! Välkommen!');
           } else {
-            toast.success('Logged in successfully!');
+            toast.success('Inloggad!');
           }
           
           // Clear the hash params from the URL (for security)
           window.history.replaceState(null, '', window.location.pathname);
         } catch (error) {
           console.error('Error setting session from URL:', error);
-          toast.error('Authentication failed. Please try again.');
+          toast.error('Autentisering misslyckades. Försök igen.');
         }
       }
     };

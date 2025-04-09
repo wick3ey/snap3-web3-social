@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Mail, Key, User, ArrowRight } from 'lucide-react';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,11 +22,12 @@ const AuthPage = () => {
   const { user, hasProfile } = useAuth();
   const navigate = useNavigate();
 
-  // If user is already logged in, redirect appropriately
+  // Om användaren redan är inloggad, dirigera till lämplig sida
   useEffect(() => {
     if (user) {
-      // If user has a profile, redirect to camera page
-      // Otherwise, redirect to create-profile page
+      // Om användaren har en profil, dirigera till camera-sidan
+      // Annars, dirigera till create-profile-sidan
+      console.log('User already logged in, hasProfile:', hasProfile);
       navigate(hasProfile ? '/camera' : '/create-profile');
     }
   }, [user, hasProfile, navigate]);
@@ -36,10 +38,10 @@ const AuthPage = () => {
 
     try {
       await signInWithEmail(email, password);
-      toast.success("Successfully signed in!");
+      toast.success("Inloggad!");
     } catch (error: any) {
       console.error("Sign in error:", error);
-      toast.error(error.message || "Sign in failed");
+      toast.error(error.message || "Inloggning misslyckades");
     } finally {
       setIsLoading(false);
     }
@@ -47,14 +49,30 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password || !username) {
+      toast.error("Fyll i alla obligatoriska fält");
+      return;
+    }
+    
+    if (username.length < 3) {
+      toast.error("Användarnamnet måste vara minst 3 tecken");
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error("Lösenordet måste vara minst 6 tecken");
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
       await signUpWithEmail(email, password, username);
-      toast.success("Account created! Please check your email for verification.");
+      toast.success("Konto skapat! Kontrollera din e-post för verifiering.");
     } catch (error: any) {
       console.error("Sign up error:", error);
-      toast.error(error.message || "Sign up failed");
+      toast.error(error.message || "Registrering misslyckades");
     } finally {
       setIsLoading(false);
     }
@@ -62,14 +80,20 @@ const AuthPage = () => {
 
   const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!magicLinkEmail) {
+      toast.error("Ange din e-postadress");
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
       await sendMagicLink(magicLinkEmail);
-      toast.success("Magic link sent! Please check your email.");
+      toast.success("Magisk länk skickad! Kontrollera din e-post.");
     } catch (error: any) {
       console.error("Magic link error:", error);
-      toast.error(error.message || "Failed to send magic link");
+      toast.error(error.message || "Kunde inte skicka magisk länk");
     } finally {
       setIsLoading(false);
     }
@@ -85,16 +109,15 @@ const AuthPage = () => {
               alt="Logo" 
               className="w-16 h-16"
               onError={(e) => {
-                // Fallback if image fails to load
                 e.currentTarget.src = "/placeholder.svg";
               }}
             />
           </div>
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Snap3</h1>
+            <h1 className="text-3xl font-bold mb-2">Välkommen till Snap3</h1>
             <p className="text-gray-400 mb-8">
-              Sign in or create an account to access the social experience
+              Logga in eller skapa ett konto för att komma igång
             </p>
           </div>
 
@@ -102,16 +125,19 @@ const AuthPage = () => {
             <div className="w-full">
               <form onSubmit={handleSendMagicLink} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="magic-email">Email</Label>
-                  <Input 
-                    id="magic-email" 
-                    type="email" 
-                    placeholder="Enter your email"
-                    value={magicLinkEmail}
-                    onChange={(e) => setMagicLinkEmail(e.target.value)}
-                    required
-                    className="bg-white/5 border-white/10"
-                  />
+                  <Label htmlFor="magic-email">E-post</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <Input 
+                      id="magic-email" 
+                      type="email" 
+                      placeholder="Ange din e-post"
+                      value={magicLinkEmail}
+                      onChange={(e) => setMagicLinkEmail(e.target.value)}
+                      required
+                      className="bg-white/5 border-white/10 pl-10"
+                    />
+                  </div>
                 </div>
                 
                 <Button 
@@ -119,7 +145,8 @@ const AuthPage = () => {
                   className="w-full snap-button mt-6"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Sending..." : "Send Magic Link"}
+                  {isLoading ? "Skickar..." : "Skicka magisk länk"}
+                  <ArrowRight size={16} className="ml-2" />
                 </Button>
                 
                 <Button 
@@ -128,43 +155,49 @@ const AuthPage = () => {
                   className="w-full text-gray-400"
                   onClick={() => setShowMagicLinkForm(false)}
                 >
-                  Back to regular login
+                  Tillbaka till vanlig inloggning
                 </Button>
               </form>
             </div>
           ) : (
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">Logga in</TabsTrigger>
+                <TabsTrigger value="signup">Skapa konto</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input 
-                      id="signin-email" 
-                      type="email" 
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label htmlFor="signin-email">E-post</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Input 
+                        id="signin-email" 
+                        type="email" 
+                        placeholder="Ange din e-post"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="bg-white/5 border-white/10 pl-10"
+                      />
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <Input 
-                      id="signin-password" 
-                      type="password" 
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label htmlFor="signin-password">Lösenord</Label>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Input 
+                        id="signin-password" 
+                        type="password" 
+                        placeholder="Ange ditt lösenord"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="bg-white/5 border-white/10 pl-10"
+                      />
+                    </div>
                   </div>
                   
                   <Button 
@@ -172,7 +205,8 @@ const AuthPage = () => {
                     className="w-full snap-button mt-6"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign In"}
+                    {isLoading ? "Loggar in..." : "Logga in"}
+                    <ArrowRight size={16} className="ml-2" />
                   </Button>
                   
                   <div className="mt-4">
@@ -183,7 +217,7 @@ const AuthPage = () => {
                       className="w-full"
                       onClick={() => setShowMagicLinkForm(true)}
                     >
-                      Sign in with Magic Link
+                      Logga in med magisk länk
                     </Button>
                   </div>
                 </form>
@@ -192,50 +226,66 @@ const AuthPage = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input 
-                      id="signup-email" 
-                      type="email" 
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label htmlFor="signup-email">E-post *</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Input 
+                        id="signup-email" 
+                        type="email" 
+                        placeholder="Ange din e-post"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="bg-white/5 border-white/10 pl-10"
+                      />
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username</Label>
-                    <Input 
-                      id="signup-username" 
-                      type="text" 
-                      placeholder="Choose a username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label htmlFor="signup-username">Användarnamn *</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Input 
+                        id="signup-username" 
+                        type="text" 
+                        placeholder="Välj ett användarnamn"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                        className="bg-white/5 border-white/10 pl-10"
+                      />
+                    </div>
+                    {username && username.length < 3 && (
+                      <p className="text-sm text-red-500">Användarnamnet måste vara minst 3 tecken</p>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input 
-                      id="signup-password" 
-                      type="password" 
-                      placeholder="Choose a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="bg-white/5 border-white/10"
-                    />
+                    <Label htmlFor="signup-password">Lösenord *</Label>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Input 
+                        id="signup-password" 
+                        type="password" 
+                        placeholder="Välj ett lösenord"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="bg-white/5 border-white/10 pl-10"
+                      />
+                    </div>
+                    {password && password.length < 6 && (
+                      <p className="text-sm text-red-500">Lösenordet måste vara minst 6 tecken</p>
+                    )}
                   </div>
                   
                   <Button 
                     type="submit" 
                     className="w-full snap-button mt-6"
-                    disabled={isLoading}
+                    disabled={isLoading || username.length < 3 || password.length < 6}
                   >
-                    {isLoading ? "Creating Account..." : "Create Account"}
+                    {isLoading ? "Skapar konto..." : "Skapa konto"}
+                    <ArrowRight size={16} className="ml-2" />
                   </Button>
                 </form>
               </TabsContent>
@@ -243,7 +293,7 @@ const AuthPage = () => {
           )}
 
           <p className="text-xs text-gray-500 text-center mt-4">
-            By signing in, you agree to our Terms of Service and Privacy Policy
+            Genom att logga in godkänner du våra användarvillkor och sekretesspolicy
           </p>
         </div>
       </Card>
