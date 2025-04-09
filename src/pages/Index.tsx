@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, hasProfile } = useAuth();
 
   // If loading, show a loading spinner
   if (isLoading) {
@@ -15,8 +15,18 @@ const Index = () => {
     );
   }
 
-  // If user is logged in, redirect to camera page, otherwise to auth page
-  return user ? <Navigate to="/camera" replace /> : <Navigate to="/auth" replace />;
+  // If user is not logged in, redirect to auth page
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  // If user is logged in but has no profile, redirect to profile creation
+  if (user && !hasProfile) {
+    return <Navigate to="/create-profile" replace />;
+  }
+  
+  // If user is logged in and has a profile, redirect to camera page
+  return <Navigate to="/camera" replace />;
 };
 
 export default Index;

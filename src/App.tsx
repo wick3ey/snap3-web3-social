@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Pages
 import Index from "./pages/Index";
 import OnboardingPage from "./pages/OnboardingPage";
+import CreateProfilePage from "./pages/CreateProfilePage";
 import CameraPage from "./pages/CameraPage";
 import ChatPage from "./pages/ChatPage";
 import ChatConversationPage from "./pages/ChatConversationPage";
@@ -39,6 +40,11 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/create-profile" element={
+                  <ProtectedRoute>
+                    <CreateProfilePage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/camera" element={
                   <ProtectedRoute>
                     <CameraPage />

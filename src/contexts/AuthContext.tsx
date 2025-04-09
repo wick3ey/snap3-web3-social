@@ -19,6 +19,8 @@ interface AuthContextProps {
   profile: Profile | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  hasProfile: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -27,6 +29,8 @@ const AuthContext = createContext<AuthContextProps>({
   profile: null,
   isLoading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
+  hasProfile: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -36,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState(false);
   const navigate = useNavigate();
 
   // Fetch user profile data
@@ -51,12 +56,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching profile:', error);
+        setHasProfile(false);
         return;
       }
 
       setProfile(data);
+      setHasProfile(!!data && !!data.username);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setHasProfile(false);
+    }
+  };
+
+  // Refresh profile - can be called after profile creation
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
     }
   };
 
@@ -67,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(null);
       setUser(null);
       setProfile(null);
+      setHasProfile(false);
       navigate('/auth');
       toast.success('Logged out successfully');
     } catch (error) {
@@ -104,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else if (event === 'SIGNED_OUT') {
               // On sign out, clear profile
               setProfile(null);
+              setHasProfile(false);
             }
           }
         );
@@ -122,7 +139,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, isLoading, signOut }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      user, 
+      profile, 
+      isLoading, 
+      signOut, 
+      refreshProfile,
+      hasProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );

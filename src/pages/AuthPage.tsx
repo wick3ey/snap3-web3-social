@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -12,15 +11,17 @@ import { Card } from '@/components/ui/card';
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { wallet, signIn, connected, connecting, disconnect } = useWallet();
-  const { user } = useAuth();
+  const { user, hasProfile } = useAuth();
   const navigate = useNavigate();
 
-  // If user is already logged in, redirect to camera page
-  React.useEffect(() => {
+  // If user is already logged in, redirect appropriately
+  useEffect(() => {
     if (user) {
-      navigate('/camera');
+      // If user has a profile, redirect to camera page
+      // Otherwise, redirect to create-profile page
+      navigate(hasProfile ? '/camera' : '/create-profile');
     }
-  }, [user, navigate]);
+  }, [user, hasProfile, navigate]);
 
   const handleSignIn = async () => {
     if (!wallet || !signIn) {
@@ -55,7 +56,7 @@ const AuthPage = () => {
         // Set the session in Supabase
         await setSession(result.session);
         toast.success("Successfully signed in!");
-        navigate('/camera');
+        navigate('/create-profile');
       } else {
         toast.error(result?.error || "Sign in failed");
         await disconnect();

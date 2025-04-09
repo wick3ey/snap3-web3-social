@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, hasProfile } = useAuth();
 
   // While checking authentication status, show nothing or a loader
   if (isLoading) {
@@ -22,6 +22,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // If not authenticated, redirect to auth page
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+  
+  // If authenticated but no profile, redirect to create profile page
+  if (user && !hasProfile && window.location.pathname !== '/create-profile') {
+    return <Navigate to="/create-profile" replace />;
   }
   
   // If authenticated, render children
