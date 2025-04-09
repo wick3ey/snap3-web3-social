@@ -91,11 +91,13 @@ const CreateProfilePage = () => {
         throw new Error('No user found');
       }
       
+      // Fixed: We now provide an empty string for wallet_address as it's optional but the type still requires it
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           username,
+          wallet_address: '',  // Provide an empty string since wallet_address is still required by TypeScript
           last_login: new Date().toISOString(),
         });
       
