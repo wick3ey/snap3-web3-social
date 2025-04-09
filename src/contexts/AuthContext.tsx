@@ -42,11 +42,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user ID:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -54,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
+      console.log('Profile data:', data);
       setProfile(data);
       setHasProfile(!!data && !!data.username);
     } catch (error) {
@@ -96,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (accessToken && refreshToken) {
         try {
+          console.log('Found tokens in URL, setting session');
           // Set the session with the token from URL
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -128,18 +131,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       
       try {
+        console.log('Initializing auth state...');
         // Set up auth state listener FIRST
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, newSession) => {
             console.log('Auth state changed:', event);
+            
             setSession(newSession);
             setUser(newSession?.user ?? null);
 
-            if (event === 'SIGNED_IN' && newSession?.user) {
+            if (newSession?.user) {
               // On sign in, fetch profile
+              console.log('User is signed in, fetching profile');
               await fetchProfile(newSession.user.id);
             } else if (event === 'SIGNED_OUT') {
               // On sign out, clear profile
+              console.log('User signed out, clearing profile');
               setProfile(null);
               setHasProfile(false);
             }
@@ -148,11 +155,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // THEN check for existing session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log('Got current session:', currentSession ? 'exists' : 'none');
+        
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
           // Fetch user profile
+          console.log('Found existing session, fetching profile');
           await fetchProfile(currentSession.user.id);
         }
 

@@ -20,6 +20,7 @@ const CreateProfilePage = () => {
   // If user already has a profile, redirect to camera page
   useEffect(() => {
     if (hasProfile) {
+      console.log('User already has profile, redirecting to camera');
       navigate('/camera');
     }
   }, [hasProfile, navigate]);
@@ -27,9 +28,11 @@ const CreateProfilePage = () => {
   // If no user, redirect to auth page
   useEffect(() => {
     if (!user) {
+      console.log('No user found, redirecting to auth');
       navigate('/auth');
     } else if (user.user_metadata?.username) {
       // If user already has a username in metadata, pre-fill it
+      console.log('Found username in metadata:', user.user_metadata.username);
       setUsername(user.user_metadata.username);
     }
   }, [user, navigate]);
@@ -47,9 +50,9 @@ const CreateProfilePage = () => {
           .from('profiles')
           .select('username')
           .eq('username', username)
-          .single();
+          .maybeSingle();
           
-        if (data) {
+        if (data && data.username) {
           setError('This username is already taken');
         }
       } catch (err) {
@@ -91,12 +94,14 @@ const CreateProfilePage = () => {
         throw new Error('No user found');
       }
       
+      console.log('Creating profile for user:', user.id);
+      
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           username,
-          wallet_address: null,  // Include wallet_address as null to satisfy TypeScript
+          wallet_address: null,  // Explicitly set to null for TypeScript
           last_login: new Date().toISOString(),
         });
       
@@ -111,6 +116,7 @@ const CreateProfilePage = () => {
       }
       
       // Refresh the profile data in context
+      console.log('Profile created, refreshing profile data');
       await refreshProfile();
       
       toast.success('Profile created successfully!');

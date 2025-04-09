@@ -14,7 +14,8 @@ export const signUpWithEmail = async (
       options: {
         data: {
           username
-        }
+        },
+        emailRedirectTo: window.location.origin
       }
     });
 
@@ -56,6 +57,9 @@ export const sendMagicLink = async (
   email: string
 ): Promise<any> => {
   try {
+    console.log("Sending magic link to:", email);
+    console.log("Redirect URL:", window.location.origin);
+    
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
