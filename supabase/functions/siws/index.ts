@@ -31,6 +31,14 @@ serve(async (req) => {
       );
     }
 
+    // Log the input for debugging
+    console.log("SIWS Input:", JSON.stringify(input));
+    console.log("SIWS Output (partial):", JSON.stringify({
+      account: output.account,
+      signedMessage: "<<binary data>>",
+      signature: "<<binary data>>"
+    }));
+
     // Convert the data back to Uint8Array format
     const serializedOutput = {
       account: {
@@ -45,6 +53,7 @@ serve(async (req) => {
     const isValid = verifySignIn(input, serializedOutput);
 
     if (!isValid) {
+      console.error("Invalid SIWS signature");
       return new Response(
         JSON.stringify({ success: false, error: "Invalid signature" }),
         {
@@ -56,6 +65,7 @@ serve(async (req) => {
 
     // Extract wallet address from output
     const walletAddress = output.account.address;
+    console.log("Wallet address:", walletAddress);
 
     // Check if user exists
     const { data: existingUser, error: fetchError } = await supabase
@@ -67,6 +77,7 @@ serve(async (req) => {
     let userId: string;
 
     if (fetchError || !existingUser) {
+      console.log("Creating new user for wallet:", walletAddress);
       // Create a new user
       const { data: authUser, error: createAuthError } = await supabase.auth.admin.createUser({
         email: `${walletAddress.slice(0, 8)}@phantom.solana`,
@@ -109,6 +120,7 @@ serve(async (req) => {
       }
     } else {
       userId = existingUser.id;
+      console.log("Existing user found:", userId);
 
       // Update last login
       await supabase
@@ -134,6 +146,7 @@ serve(async (req) => {
       );
     }
 
+    console.log("Session created successfully");
     return new Response(
       JSON.stringify({ 
         success: true, 

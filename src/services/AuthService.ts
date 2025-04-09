@@ -2,19 +2,26 @@
 import { SolanaSignInInput, SolanaSignInOutput } from "@solana/wallet-standard-features";
 import { supabase } from '@/integrations/supabase/client';
 
-// Create sign-in data
+// Create sign-in data with proper formatting
 export const createSignInData = (): SolanaSignInInput => {
   const now = new Date();
   const currentDateTime = now.toISOString();
   
+  // Get the domain without port for compatibility
+  const domain = window.location.host.split(':')[0];
+  
   return {
-    domain: window.location.host,
-    statement: "Sign in to Snap3 to prove you own this wallet",
+    domain: domain,
+    statement: "Sign in to Snap3 with your Solana wallet",
     version: "1",
     nonce: crypto.randomUUID(),
-    chainId: "mainnet",
+    chainId: "solana:mainnet",
     issuedAt: currentDateTime,
-    resources: [`https://${window.location.host}/terms`, `https://${window.location.host}/privacy`]
+    // Resources should be full URLs
+    resources: [
+      `https://${domain}/terms`,
+      `https://${domain}/privacy`
+    ]
   };
 };
 

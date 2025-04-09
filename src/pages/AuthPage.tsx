@@ -36,11 +36,14 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
+      console.log("Creating sign in data...");
       // Create sign in data
       const input = createSignInData();
+      console.log("Sign in data:", input);
 
       // Request wallet to sign in
       const output = await signIn(input);
+      console.log("Sign output received:", output);
 
       // Verify the signature with our backend
       const result = await verifySIWS(input, output);
@@ -56,7 +59,16 @@ const AuthPage = () => {
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
-      toast.error(error.message || "Sign in failed");
+      
+      // Provide more specific error messages based on the error type
+      if (error.name === 'WalletSignInError') {
+        toast.error("Wallet sign-in failed. Please try again with a supported wallet.");
+      } else if (error.message && error.message.includes("invalid formatting")) {
+        toast.error("Sign-in request format error. Please try again or use a different wallet.");
+      } else {
+        toast.error(error.message || "Sign in failed");
+      }
+      
       await disconnect();
     } finally {
       setIsLoading(false);
