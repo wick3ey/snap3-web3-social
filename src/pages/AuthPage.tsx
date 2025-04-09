@@ -1,16 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { createSignInData, verifySIWS, setSession } from '@/services/AuthService';
+import { signInWithEmail, signUpWithEmail } from '@/services/AuthService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { wallet, signIn, connected, connecting, disconnect } = useWallet();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const { user, hasProfile } = useAuth();
   const navigate = useNavigate();
 
@@ -23,66 +27,31 @@ const AuthPage = () => {
     }
   }, [user, hasProfile, navigate]);
 
-  const handleSignIn = async () => {
-    if (!wallet || !signIn) {
-      toast.error("Please connect your wallet first");
-      return;
-    }
-
-    if (!("signIn" in wallet.adapter)) {
-      toast.error("Your wallet doesn't support Sign In With Solana");
-      return;
-    }
-
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log("Creating sign in data...");
-      // Create sign in data
-      const input = createSignInData();
-      console.log("Sign in data:", JSON.stringify(input, null, 2));
-
-      // Request wallet to sign in
-      console.log("Requesting wallet to sign...");
-      const output = await signIn(input);
-      console.log("Sign output received:", output);
-
-      // Verify the signature with our backend
-      console.log("Verifying signature with backend...");
-      const result = await verifySIWS(input, output);
-      console.log("Verification result:", result);
-
-      if (result && result.success) {
-        // Set the session in Supabase
-        await setSession(result.session);
-        toast.success("Successfully signed in!");
-        navigate('/create-profile');
-      } else {
-        toast.error(result?.error || "Sign in failed");
-        await disconnect();
-      }
+      await signInWithEmail(email, password);
+      toast.success("Successfully signed in!");
     } catch (error: any) {
       console.error("Sign in error:", error);
-      
-      // Handle specific Phantom wallet error cases
-      if (error.name === 'WalletSignInError') {
-        if (error.message.includes("invalid formatting")) {
-          console.error("SIWS format issue. Error details:", error);
-          toast.error("Wallet connection error. Please try again or refresh the page.");
-        } else if (error.message.includes("rejected")) {
-          toast.error("You declined the sign-in request.");
-        } else {
-          toast.error("Wallet sign-in failed. Please try with a different wallet.");
-        }
-      } else {
-        toast.error(error.message || "Sign in failed");
-      }
-      
-      try {
-        await disconnect();
-      } catch (disconnectError) {
-        console.error("Error disconnecting wallet:", disconnectError);
-      }
+      toast.error(error.message || "Sign in failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await signUpWithEmail(email, password, username);
+      toast.success("Account created! Please check your email for verification.");
+    } catch (error: any) {
+      console.error("Sign up error:", error);
+      toast.error(error.message || "Sign up failed");
     } finally {
       setIsLoading(false);
     }
@@ -95,11 +64,11 @@ const AuthPage = () => {
           <div className="w-24 h-24 rounded-full bg-snap-yellow flex items-center justify-center">
             <img 
               src="/sol-logo.png" 
-              alt="Solana" 
+              alt="Logo" 
               className="w-16 h-16"
               onError={(e) => {
                 // Fallback if image fails to load
-                e.currentTarget.src = "https://solana.com/favicon.ico";
+                e.currentTarget.src = "/placeholder.svg";
               }}
             />
           </div>
@@ -107,33 +76,105 @@ const AuthPage = () => {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">Welcome to Snap3</h1>
             <p className="text-gray-400 mb-8">
-              Sign in with your Solana wallet to access the Web3 social experience
+              Sign in or create an account to access the social experience
             </p>
           </div>
 
-          <div className="w-full space-y-4">
-            {!connected && !connecting ? (
-              <div className="flex flex-col gap-4">
-                <WalletMultiButton className="wallet-button-custom w-full" />
-                <p className="text-xs text-center text-gray-500">
-                  Connect your Phantom wallet to continue
-                </p>
-              </div>
-            ) : (
-              <>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input 
+                    id="signin-email" 
+                    type="email" 
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <Input 
+                    id="signin-password" 
+                    type="password" 
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                
                 <Button 
-                  onClick={handleSignIn} 
-                  disabled={isLoading} 
-                  className="w-full snap-button"
+                  type="submit" 
+                  className="w-full snap-button mt-6"
+                  disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign in with Solana"}
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
-                <p className="text-xs text-center text-gray-500">
-                  Connected as {wallet?.adapter.publicKey?.toString().slice(0, 6)}...{wallet?.adapter.publicKey?.toString().slice(-4)}
-                </p>
-              </>
-            )}
-          </div>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input 
+                    id="signup-email" 
+                    type="email" 
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-username">Username</Label>
+                  <Input 
+                    id="signup-username" 
+                    type="text" 
+                    placeholder="Choose a username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input 
+                    id="signup-password" 
+                    type="password" 
+                    placeholder="Choose a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full snap-button mt-6"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Create Account"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
 
           <p className="text-xs text-gray-500 text-center mt-4">
             By signing in, you agree to our Terms of Service and Privacy Policy

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,9 @@ const CreateProfilePage = () => {
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+    } else if (user.user_metadata?.username) {
+      // If user already has a username in metadata, pre-fill it
+      setUsername(user.user_metadata.username);
     }
   }, [user, navigate]);
 
@@ -87,15 +91,11 @@ const CreateProfilePage = () => {
         throw new Error('No user found');
       }
       
-      // Get wallet address from auth metadata
-      const walletAddress = user.app_metadata?.wallet_address || '';
-
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           username,
-          wallet_address: walletAddress,
           last_login: new Date().toISOString(),
         });
       
@@ -129,15 +129,18 @@ const CreateProfilePage = () => {
           <div className="w-24 h-24 rounded-full bg-snap-yellow flex items-center justify-center">
             <img 
               src="/sol-logo.png" 
-              alt="Solana" 
+              alt="Logo" 
               className="w-16 h-16"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.svg";
+              }}
             />
           </div>
 
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">Create Your Profile</h1>
             <p className="text-gray-400 mb-8">
-              Choose a unique username to complete your Snap3 account setup
+              Choose a unique username to complete your account setup
             </p>
           </div>
 
@@ -173,7 +176,7 @@ const CreateProfilePage = () => {
           </form>
 
           <p className="text-xs text-gray-500 text-center mt-4">
-            Your username will be publicly visible and linked to your wallet address
+            Your username will be publicly visible
           </p>
         </div>
       </Card>
