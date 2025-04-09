@@ -40,7 +40,7 @@ const CreateProfilePage = () => {
       
       try {
         const { data, error } = await supabase
-          .from('profiles' as unknown as never)
+          .from('profiles')
           .select('username')
           .eq('username', username)
           .single();
@@ -91,14 +91,12 @@ const CreateProfilePage = () => {
       const walletAddress = user.app_metadata?.wallet_address || '';
 
       const { error } = await supabase
-        .from('profiles' as unknown as never)
+        .from('profiles')
         .upsert({
           id: user.id,
           username,
           wallet_address: walletAddress,
-          last_login: new Date().toISOString()
-        }, {
-          onConflict: 'id'
+          last_login: new Date().toISOString(),
         });
       
       if (error) {

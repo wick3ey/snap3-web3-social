@@ -4,14 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
+import { Tables } from '@/integrations/supabase/types';
 
-interface Profile {
-  id: string;
-  wallet_address: string;
-  username: string;
-  avatar_url?: string;
-  last_login?: string;
-}
+// Define the Profile type using the generated Database types
+type Profile = Tables<'profiles'>;
 
 interface AuthContextProps {
   session: Session | null;
@@ -46,10 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
-      // Using type assertion with unknown first to avoid direct any casting
-      // This is a temporary workaround until database types are properly generated
       const { data, error } = await supabase
-        .from('profiles' as unknown as never)
+        .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
