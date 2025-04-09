@@ -51,6 +51,29 @@ export const signInWithEmail = async (
   }
 };
 
+// Send magic link (passwordless login)
+export const sendMagicLink = async (
+  email: string
+): Promise<any> => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin,
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error sending magic link:", error);
+    throw error;
+  }
+};
+
 // Set session after successful authentication
 export const setSession = async (session: any): Promise<void> => {
   await supabase.auth.setSession({

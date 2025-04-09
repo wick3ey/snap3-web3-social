@@ -86,22 +86,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Check for OTP or auth tokens in URL hash
+    const handleHashParams = async () => {
+      // Check for access token in the URL (from OTP verification)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+      
+      if (accessToken && refreshToken) {
+        try {
+          // Set the session with the token from URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) throw error;
+          
+          // If this was a signup, show welcome message
+          if (type === 'signup') {
+            toast.success('Account verified successfully! Welcome!');
+          } else {
+            toast.success('Logged in successfully!');
+          }
+          
+          // Clear the hash params from the URL (for security)
+          window.history.replaceState(null, '', window.location.pathname);
+        } catch (error) {
+          console.error('Error setting session from URL:', error);
+          toast.error('Authentication failed. Please try again.');
+        }
+      }
+    };
+    
+    // Check for OTP verification when the component mounts
+    handleHashParams();
+
     // Check for existing session
     const initializeAuth = async () => {
       setIsLoading(true);
       
       try {
-        // Get current session
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
-        if (currentSession?.user) {
-          // Fetch user profile
-          await fetchProfile(currentSession.user.id);
-        }
-
-        // Set up auth state change listener
+        // Set up auth state listener FIRST
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, newSession) => {
             console.log('Auth state changed:', event);
@@ -118,6 +145,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
         );
+
+        // THEN check for existing session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          // Fetch user profile
+          await fetchProfile(currentSession.user.id);
+        }
 
         return () => {
           subscription.unsubscribe();
