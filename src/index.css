@@ -1,84 +1,91 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 252 94% 67%;
+    --primary: 270 95% 75%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 252 94% 67%;
-    --accent-foreground: 240 5.9% 10%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 252 94% 67%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 270 95% 75%;
     --radius: 0.75rem;
-  }
-
-  * {
-    @apply border-border selection:bg-primary/10 selection:text-primary;
-  }
-  
-  body {
-    @apply bg-snap-dark text-foreground antialiased;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-  }
-
-  html {
-    @apply scroll-smooth;
   }
 }
 
-@layer utilities {
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+@layer base {
+  * {
+    @apply border-border;
   }
-  
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .snap-button {
+    @apply bg-gradient-to-r from-snap-yellow to-amber-500 text-black font-semibold transition-all 
+      hover:from-amber-500 hover:to-snap-yellow;
+  }
+
+  /* Custom styles for Wallet Adapter UI */
+  .wallet-button-custom {
+    @apply bg-snap-yellow !important;
+    @apply text-black !important;
+    @apply font-semibold !important;
+    @apply hover:bg-amber-500 !important;
+    @apply py-4 !important;
   }
 
   .glass-morphism {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
   }
-  
-  .neo-blur {
-    @apply backdrop-blur-2xl bg-black/40 border border-white/10;
-  }
-  
-  .text-gradient {
-    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
-  }
+}
 
-  .snap-button {
-    @apply rounded-full bg-solana-purple text-white font-semibold py-3 px-6 hover:bg-solana-purple/90 transition-colors focus:outline-none focus:ring-2 focus:ring-solana-purple/50 focus:ring-offset-2 focus:ring-offset-background;
-  }
+/* Set snap colors */
+:root {
+  --snap-yellow: #FFFC00;
+  --snap-dark: #1A1A1A;
+  --snap-dark-purple: #121019;
+  --snap-gray: #333333;
+  --solana-purple: #8C3FE8;
+}
 
-  .snap-button-outline {
-    @apply rounded-full border border-white/20 bg-white/5 text-white font-semibold py-3 px-6 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-background;
-  }
+.bg-snap-yellow {
+  background-color: var(--snap-yellow);
+}
 
-  .snap-icon-button {
-    @apply rounded-full p-3 bg-white/5 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20;
-  }
+.bg-snap-dark {
+  background-color: var(--snap-dark);
+}
 
-  .snap-card {
-    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm;
-  }
+.bg-snap-dark-purple {
+  background-color: var(--snap-dark-purple);
+}
 
-  .web3-gradient {
-    @apply bg-gradient-to-br from-solana-purple via-snap-purple to-solana-blue;
-  }
+.bg-snap-gray {
+  background-color: var(--snap-gray);
+}
+
+.bg-solana-purple {
+  background-color: var(--solana-purple);
+}
+
+.text-snap-yellow {
+  color: var(--snap-yellow);
 }
