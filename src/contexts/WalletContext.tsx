@@ -1,3 +1,4 @@
+
 import React, { FC, ReactNode, useCallback, useMemo } from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -26,17 +27,12 @@ export const WalletContextProvider: FC<WalletContextProviderProps> = ({ children
     []
   );
 
-  const autoSignIn = useCallback(async (adapter: any) => {
-    // Standard autoConnect behavior if adapter doesn't support signIn
-    if (!("signIn" in adapter)) return true;
-    
-    // Otherwise, don't autoConnect - we'll handle sign-in explicitly
-    return false;
-  }, []);
+  // We're letting the SIWS flow handle the sign in instead of autoConnect
+  const autoConnect = false;
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect={autoSignIn}>
+      <WalletProvider wallets={wallets} autoConnect={autoConnect}>
         <WalletModalProvider>
           {children}
         </WalletModalProvider>

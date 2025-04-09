@@ -39,14 +39,17 @@ const AuthPage = () => {
       console.log("Creating sign in data...");
       // Create sign in data
       const input = createSignInData();
-      console.log("Sign in data:", input);
+      console.log("Sign in data:", JSON.stringify(input, null, 2));
 
       // Request wallet to sign in
+      console.log("Requesting wallet to sign...");
       const output = await signIn(input);
       console.log("Sign output received:", output);
 
       // Verify the signature with our backend
+      console.log("Verifying signature with backend...");
       const result = await verifySIWS(input, output);
+      console.log("Verification result:", result);
 
       if (result.success) {
         // Set the session in Supabase
@@ -62,14 +65,21 @@ const AuthPage = () => {
       
       // Provide more specific error messages based on the error type
       if (error.name === 'WalletSignInError') {
-        toast.error("Wallet sign-in failed. Please try again with a supported wallet.");
-      } else if (error.message && error.message.includes("invalid formatting")) {
-        toast.error("Sign-in request format error. Please try again or use a different wallet.");
+        if (error.message.includes("invalid formatting")) {
+          toast.error("Sign-in format error. Please try again or contact support.");
+          console.error("SIWS format issue. Error details:", error);
+        } else {
+          toast.error("Wallet sign-in failed. Please try with a different wallet.");
+        }
       } else {
         toast.error(error.message || "Sign in failed");
       }
       
-      await disconnect();
+      try {
+        await disconnect();
+      } catch (disconnectError) {
+        console.error("Error disconnecting wallet:", disconnectError);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,9 +91,13 @@ const AuthPage = () => {
         <div className="flex flex-col items-center gap-6">
           <div className="w-24 h-24 rounded-full bg-snap-yellow flex items-center justify-center">
             <img 
-              src="https://cryptologos.cc/logos/solana-sol-logo.png" 
+              src="/sol-logo.png" 
               alt="Solana" 
               className="w-16 h-16"
+              onError={(e) => {
+                // Fallback if image fails to load
+                e.currentTarget.src = "https://solana.com/favicon.ico";
+              }}
             />
           </div>
 

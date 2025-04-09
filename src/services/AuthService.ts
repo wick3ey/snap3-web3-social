@@ -2,13 +2,13 @@
 import { SolanaSignInInput, SolanaSignInOutput } from "@solana/wallet-standard-features";
 import { supabase } from '@/integrations/supabase/client';
 
-// Create sign-in data with proper formatting
+// Create sign-in data with proper formatting per SIWS specification
 export const createSignInData = (): SolanaSignInInput => {
   const now = new Date();
   const currentDateTime = now.toISOString();
   
-  // Get the domain without port for compatibility
-  const domain = window.location.host.split(':')[0];
+  // Get the full domain including protocol for compatibility
+  const domain = window.location.hostname; // Use hostname without port
   
   return {
     domain: domain,
@@ -17,7 +17,7 @@ export const createSignInData = (): SolanaSignInInput => {
     nonce: crypto.randomUUID(),
     chainId: "solana:mainnet",
     issuedAt: currentDateTime,
-    // Resources should be full URLs
+    // Resources are optional, but if included must be properly formatted
     resources: [
       `https://${domain}/terms`,
       `https://${domain}/privacy`
