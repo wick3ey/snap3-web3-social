@@ -41,10 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
-      // Use any() to bypass type checking for the table name
-      // This is a workaround until the database types are properly generated
+      // Using type assertion with unknown first to avoid direct any casting
+      // This is a temporary workaround until database types are properly generated
       const { data, error } = await supabase
-        .from('profiles' as any)
+        .from('profiles' as unknown as never)
         .select('*')
         .eq('id', userId)
         .single();
