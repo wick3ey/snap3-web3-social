@@ -31,12 +31,11 @@ serve(async (req) => {
       );
     }
 
-    // Log the input for debugging
+    // Log the input and output for debugging
     console.log("SIWS Input:", JSON.stringify(input));
-    console.log("SIWS Output (partial):", JSON.stringify({
-      account: output.account,
-      signedMessage: "<<binary data>>",
-      signature: "<<binary data>>"
+    console.log("SIWS Output account:", JSON.stringify({
+      address: output.account.address,
+      publicKey: "<<binary data>>"
     }));
 
     // Convert the data back to Uint8Array format
@@ -50,7 +49,9 @@ serve(async (req) => {
     };
 
     // Verify the signed message
+    console.log("Verifying SIWS signature...");
     const isValid = verifySignIn(input, serializedOutput);
+    console.log("Signature verification result:", isValid);
 
     if (!isValid) {
       console.error("Invalid SIWS signature");

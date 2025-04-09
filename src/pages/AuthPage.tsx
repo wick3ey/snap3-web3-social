@@ -51,23 +51,25 @@ const AuthPage = () => {
       const result = await verifySIWS(input, output);
       console.log("Verification result:", result);
 
-      if (result.success) {
+      if (result && result.success) {
         // Set the session in Supabase
         await setSession(result.session);
         toast.success("Successfully signed in!");
         navigate('/camera');
       } else {
-        toast.error(result.error || "Sign in failed");
+        toast.error(result?.error || "Sign in failed");
         await disconnect();
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
       
-      // Provide more specific error messages based on the error type
+      // Handle specific Phantom wallet error cases
       if (error.name === 'WalletSignInError') {
         if (error.message.includes("invalid formatting")) {
-          toast.error("Sign-in format error. Please try again or contact support.");
           console.error("SIWS format issue. Error details:", error);
+          toast.error("Wallet connection error. Please try again or refresh the page.");
+        } else if (error.message.includes("rejected")) {
+          toast.error("You declined the sign-in request.");
         } else {
           toast.error("Wallet sign-in failed. Please try with a different wallet.");
         }

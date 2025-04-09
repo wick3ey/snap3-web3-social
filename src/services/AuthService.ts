@@ -7,9 +7,10 @@ export const createSignInData = (): SolanaSignInInput => {
   const now = new Date();
   const currentDateTime = now.toISOString();
   
-  // Get the full domain including protocol for compatibility
-  const domain = window.location.hostname; // Use hostname without port
+  // Get the domain without protocol or port - this is critical for Phantom wallet compatibility
+  const domain = window.location.hostname;
   
+  // Create a properly formatted SIWS input object
   return {
     domain: domain,
     statement: "Sign in to Snap3 with your Solana wallet",
@@ -17,11 +18,11 @@ export const createSignInData = (): SolanaSignInInput => {
     nonce: crypto.randomUUID(),
     chainId: "solana:mainnet",
     issuedAt: currentDateTime,
-    // Resources are optional, but if included must be properly formatted
-    resources: [
-      `https://${domain}/terms`,
-      `https://${domain}/privacy`
-    ]
+    // Make resources optional to avoid potential compatibility issues
+    // resources: [
+    //   `https://${domain}/terms`,
+    //   `https://${domain}/privacy`
+    // ]
   };
 };
 
