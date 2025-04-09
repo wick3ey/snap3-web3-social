@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Key, User, ArrowRight } from 'lucide-react';
+import { Mail, Key, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,18 +20,19 @@ const AuthPage = () => {
   const [username, setUsername] = useState('');
   const [magicLinkEmail, setMagicLinkEmail] = useState('');
   const [showMagicLinkForm, setShowMagicLinkForm] = useState(false);
-  const { user, hasProfile } = useAuth();
+  const [showOtpSent, setShowOtpSent] = useState(false);
+  const { user, hasProfile, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Om användaren redan är inloggad, dirigera till lämplig sida
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       // Om användaren har en profil, dirigera till camera-sidan
       // Annars, dirigera till create-profile-sidan
       console.log('User already logged in, hasProfile:', hasProfile);
       navigate(hasProfile ? '/camera' : '/create-profile');
     }
-  }, [user, hasProfile, navigate]);
+  }, [user, hasProfile, navigate, authLoading]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ const AuthPage = () => {
 
     try {
       await signInWithEmail(email, password);
+      // Don't navigate here - let the AuthContext handle navigation
       toast.success("Inloggad!");
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -70,9 +73,18 @@ const AuthPage = () => {
     try {
       await signUpWithEmail(email, password, username);
       toast.success("Konto skapat! Kontrollera din e-post för verifiering.");
+      
+      // Show dialog to inform user about next steps
+      setShowOtpSent(true);
     } catch (error: any) {
       console.error("Sign up error:", error);
-      toast.error(error.message || "Registrering misslyckades");
+      
+      // Handle specific error cases
+      if (error.message.includes("already registered")) {
+        toast.error("E-postadressen används redan. Försök logga in istället.");
+      } else {
+        toast.error(error.message || "Registrering misslyckades");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +102,7 @@ const AuthPage = () => {
 
     try {
       await sendMagicLink(magicLinkEmail);
-      toast.success("Magisk länk skickad! Kontrollera din e-post.");
+      setShowOtpSent(true);
     } catch (error: any) {
       console.error("Magic link error:", error);
       toast.error(error.message || "Kunde inte skicka magisk länk");
@@ -98,6 +110,17 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen bg-snap-dark-purple p-4">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-snap-yellow" />
+          <p className="text-white">Laddar...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-snap-dark-purple p-4">
@@ -145,8 +168,17 @@ const AuthPage = () => {
                   className="w-full snap-button mt-6"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Skickar..." : "Skicka magisk länk"}
-                  <ArrowRight size={16} className="ml-2" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Skickar...
+                    </>
+                  ) : (
+                    <>
+                      Skicka magisk länk
+                      <ArrowRight size={16} className="ml-2" />
+                    </>
+                  )}
                 </Button>
                 
                 <Button 
@@ -205,8 +237,17 @@ const AuthPage = () => {
                     className="w-full snap-button mt-6"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Loggar in..." : "Logga in"}
-                    <ArrowRight size={16} className="ml-2" />
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loggar in...
+                      </>
+                    ) : (
+                      <>
+                        Logga in
+                        <ArrowRight size={16} className="ml-2" />
+                      </>
+                    )}
                   </Button>
                   
                   <div className="mt-4">
@@ -284,8 +325,17 @@ const AuthPage = () => {
                     className="w-full snap-button mt-6"
                     disabled={isLoading || username.length < 3 || password.length < 6}
                   >
-                    {isLoading ? "Skapar konto..." : "Skapa konto"}
-                    <ArrowRight size={16} className="ml-2" />
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Skapar konto...
+                      </>
+                    ) : (
+                      <>
+                        Skapa konto
+                        <ArrowRight size={16} className="ml-2" />
+                      </>
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -297,6 +347,29 @@ const AuthPage = () => {
           </p>
         </div>
       </Card>
+
+      {/* OTP Sent Dialog */}
+      <Dialog open={showOtpSent} onOpenChange={setShowOtpSent}>
+        <DialogContent className="bg-black/90 border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Verifieringslänk skickad!</DialogTitle>
+            <DialogDescription className="text-gray-300 mt-2">
+              En verifieringslänk har skickats till din e-post. Klicka på länken för att verifiera ditt konto och logga in.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <p className="text-sm text-gray-400">
+              Om du inte ser e-postmeddelandet, kontrollera din skräppost/spam-mapp.
+            </p>
+            <Button 
+              onClick={() => setShowOtpSent(false)} 
+              className="snap-button"
+            >
+              Jag förstår
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

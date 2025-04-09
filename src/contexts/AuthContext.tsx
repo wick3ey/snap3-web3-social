@@ -57,10 +57,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('Profile data:', data);
       setProfile(data);
-      setHasProfile(!!data && !!data.username);
+      
+      // Check if the profile has required fields
+      const profileComplete = data && data.username && data.display_name;
+      setHasProfile(!!profileComplete);
+      
+      return data;
     } catch (error) {
       console.error('Error fetching profile:', error);
       setHasProfile(false);
+      return null;
     }
   };
 
@@ -87,6 +93,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Handle navigation based on authentication state
+  const handleNavigation = async (currentUser: User | null, userProfile: Profile | null) => {
+    if (!currentUser) {
+      // If not logged in, navigate to auth page (unless already there)
+      if (window.location.pathname !== '/auth') {
+        navigate('/auth');
+      }
+      return;
+    }
+
+    // Check if user has a complete profile
+    const profileComplete = userProfile && userProfile.username && userProfile.display_name;
+    
+    if (!profileComplete) {
+      // If logged in but no complete profile, navigate to create profile page (unless already there)
+      if (window.location.pathname !== '/create-profile') {
+        navigate('/create-profile');
+      }
+    } else if (window.location.pathname === '/auth' || window.location.pathname === '/create-profile') {
+      // If on auth or create-profile page but has complete profile, navigate to camera page
+      navigate('/camera');
+    }
+  };
+
   useEffect(() => {
     // Check for OTP or auth tokens in URL hash
     const handleHashParams = async () => {
@@ -99,6 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (accessToken && refreshToken) {
         try {
           console.log('Found tokens in URL, setting session');
+          setIsLoading(true);
+          
           // Set the session with the token from URL
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -107,18 +139,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           if (error) throw error;
           
+          // Clear the hash params from the URL (for security)
+          window.history.replaceState(null, '', window.location.pathname);
+          
           // If this was a signup, show welcome message
           if (type === 'signup') {
             toast.success('Konto verifierat! Välkommen!');
           } else {
             toast.success('Inloggad!');
           }
+
+          // Get the user profile and navigate appropriately
+          if (data.session?.user) {
+            const userProfile = await fetchProfile(data.session.user.id);
+            // Navigate based on profile status
+            await handleNavigation(data.session.user, userProfile);
+          }
           
-          // Clear the hash params from the URL (for security)
-          window.history.replaceState(null, '', window.location.pathname);
+          setIsLoading(false);
         } catch (error) {
           console.error('Error setting session from URL:', error);
           toast.error('Autentisering misslyckades. Försök igen.');
+          setIsLoading(false);
         }
       }
     };
@@ -126,30 +168,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for OTP verification when the component mounts
     handleHashParams();
 
-    // Check for existing session
+    // Initialize auth state
     const initializeAuth = async () => {
       setIsLoading(true);
       
       try {
         console.log('Initializing auth state...');
+        
         // Set up auth state listener FIRST
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, newSession) => {
             console.log('Auth state changed:', event);
             
-            setSession(newSession);
-            setUser(newSession?.user ?? null);
+            // Don't handle SESSION_CREATED here as it's handled by getSession below
+            if (event !== 'INITIAL_SESSION') {
+              setSession(newSession);
+              setUser(newSession?.user ?? null);
 
-            if (newSession?.user) {
-              // On sign in, fetch profile
-              console.log('User is signed in, fetching profile');
-              await fetchProfile(newSession.user.id);
-            } else if (event === 'SIGNED_OUT') {
-              // On sign out, clear profile
-              console.log('User signed out, clearing profile');
-              setProfile(null);
-              setHasProfile(false);
+              if (newSession?.user) {
+                // On sign in, fetch profile
+                console.log('User is signed in, fetching profile');
+                const userProfile = await fetchProfile(newSession.user.id);
+                
+                // After profile is fetched, handle navigation
+                await handleNavigation(newSession.user, userProfile);
+              } else if (event === 'SIGNED_OUT') {
+                // On sign out, clear profile
+                console.log('User signed out, clearing profile');
+                setProfile(null);
+                setHasProfile(false);
+                navigate('/auth');
+              }
             }
+            
+            setIsLoading(false);
           }
         );
 
@@ -163,15 +215,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession?.user) {
           // Fetch user profile
           console.log('Found existing session, fetching profile');
-          await fetchProfile(currentSession.user.id);
+          const userProfile = await fetchProfile(currentSession.user.id);
+          
+          // After profile is fetched, handle navigation
+          await handleNavigation(currentSession.user, userProfile);
         }
+        
+        setIsLoading(false);
 
         return () => {
           subscription.unsubscribe();
         };
       } catch (error) {
         console.error('Error initializing auth:', error);
-      } finally {
         setIsLoading(false);
       }
     };
